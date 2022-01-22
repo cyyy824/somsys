@@ -1,0 +1,12 @@
+{% extends "cost/pay_base.html" %}
+
+{% block content %}
+
+<div class="m-5">
+    <form action="{% url 'pay_update' pay.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-primary m-1" type="submit" value="更新" />
+    </form>
+</div>
+{% endblock %}

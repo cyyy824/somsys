@@ -1,0 +1,16 @@
+{% extends "cost/budget_base.html" %}
+
+
+
+
+{% block content %}
+
+<div class="m-5">
+    <form action="{% url 'budget_create' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-primary m-1" type="submit" value="新增">
+
+    </form>
+</div>
+{% endblock %}

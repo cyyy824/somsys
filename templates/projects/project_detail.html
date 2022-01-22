@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="m-5">
+    <div>
+        <h2>{{ project.name }}</h2>
+        <p>单位主体：{{ project.businessentity }}</p>
+        <p>项目状态：{{ project.task_state }}</p>
+        <p>经办人：{{ project.transactor }}</p>
+        <p>金额：{{ project.amount }}</p>
+        <p>创建日期：{{ project.cdate }}</p>
+        <p>修改日期：{{ project.lcdate }}</p>
+        <p><a href="{% url 'project_update' project.id%}">编辑</a></p>
+    </div>
+
+    <div>
+        <a class="btn btn-primary m-1" href="{% url 'schedule_create' project.id %}" role="button">添加</a>
+        <h3>进程</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">事件</th>
+                    <th scope="col">日期</th>
+                    <th scope="col">经办人</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in project.schedules.all %}
+                <tr>
+                    <td>{{ schedule.name }}</td>
+                    <td>{{ schedule.lcdate| date:"Y-m-d" }}</td>
+                    <td>{{ schedule.transactor }}</td>
+                    <td><a href="{% url 'schedule_update' schedule.id%}">修改</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">空</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+{% endblock %}

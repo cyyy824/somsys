@@ -1,0 +1,33 @@
+{% extends "cost/pay_base.html" %}
+
+{% block content %}
+<div>
+    <a class="btn btn-primary btn-lg m-1" href="{% url 'pay_create' %}" role="button">添加</a></p>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">支付项</th>
+            <th scope="col">主体</th>
+            <th scope="col">支付日期</th>
+            <th scope="col">经办人</th>
+            <th scope="col">金额</th>
+            <th scope="col">预算</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pay in pay_list %}
+        <tr>
+            <td>{{ pay.name }}</td>
+            <td>{{ pay.businessentity }}</td>
+            <td>{{ pay.paydate }}</td>
+            <td>{{ pay.transactor }}</td>
+            <td>{{ pay.amount }}</td>
+            <td>{{ pay.budget }}</td>
+            <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

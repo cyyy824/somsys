@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ schedule.project }}</h1>
+<div class="m-5">
+
+<h2>{{ schedule.name }}</h2>
+<p>经办人：{{ scheduletransactor }}</p>
+<p>创建日期：{{ schedule.cdate }}</p>
+<p>内容：{{ schedule.content }}</p>
+<p>备注：{{ schedule.remark }}</p>
+</div>
+
+{% endblock %}

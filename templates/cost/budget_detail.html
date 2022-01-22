@@ -1,0 +1,22 @@
+{% extends "cost/budget_base.html" %}
+
+
+{% block content %}
+
+<div class="m-5">
+    <h2>{{ budget.name }}</h2>
+    <p>单位主体：{{ budget.businessentity }}</p>
+    <p>预算年：{{ budget.year }}</p>
+    <p>金额：{{ budget.amount }}</p>
+    <p>创建日期：{{ budget.cdate }}</p>
+    <p>修改日期：{{ budget.lcdate }}</p>
+
+    <h3>支出</h3>
+    {% for pay in budget.pays.all %}
+    <p>{{ pay.name }}:{{ pay.amount }}</p>
+    {% endfor %}
+
+
+
+</div>
+{% endblock %}
