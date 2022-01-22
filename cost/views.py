@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
@@ -45,6 +46,15 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
         )
         return kwargs
 
+    def form_valid(self, form):
+
+        user = self.request.user
+        budget = form.save(False)
+        budget.cuser = user
+        budget.lcuser = user
+        budget.save(True)
+        return HttpResponseRedirect(self.success_url)
+
 
 class BudgetUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'cost/budget_update.html'
@@ -55,6 +65,15 @@ class BudgetUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         pk = self.kwargs['pk']
         return reverse_lazy('budget_detail', kwargs={'pk': pk})
+
+    def get_form_kwargs(self):
+        kwargs = super(BudgetUpdateView, self).get_form_kwargs()
+        user = self.request.user
+
+        kwargs.update(
+            {'initial': {'lcuser': user}}
+        )
+        return kwargs
 
 
 class BudgetDetailView(LoginRequiredMixin, DetailView):
@@ -77,11 +96,20 @@ class PayCreateView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(PayCreateView, self).get_form_kwargs()
-
+        user = self.request.user
         kwargs.update(
-            {'initial': {'paydate': datetime.date.today(), 'remark': ''}}
+            {'initial': {'paydate': datetime.date.today(), 'remark': '',
+                         'transactor': user.realname}}
         )
         return kwargs
+
+    def form_valid(self, form):
+        user = self.request.user
+        pay = form.save(False)
+        pay.cuser = user
+        pay.lcuser = user
+        pay.save(True)
+        return HttpResponseRedirect(self.success_url)
 
 
 class PayUpdateView(LoginRequiredMixin, UpdateView):
@@ -90,3 +118,12 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PayForm
     context_object_name = 'pay'
     success_url = reverse_lazy('pay_list')
+
+    def get_form_kwargs(self):
+        kwargs = super(BudgetUpdateView, self).get_form_kwargs()
+        user = self.request.user
+
+        kwargs.update(
+            {'initial': {'lcuser': user}}
+        )
+        return kwargs

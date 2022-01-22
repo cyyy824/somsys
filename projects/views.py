@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -22,6 +23,23 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     model = Project
     form_class = ProjectForm
 
+    def get_form_kwargs(self):
+        kwargs = super(ProjectCreateView, self).get_form_kwargs()
+        user = self.request.user
+
+        kwargs.update(
+            {'initial': {'transactor': user.realname}}
+        )
+        return kwargs
+
+    def form_valid(self, form):
+        user = self.request.user
+        project = form.save(False)
+        project.cuser = user
+        project.lcuser = user
+        project.save(True)
+        return HttpResponseRedirect(self.success_url)
+
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
     template_name = 'projects/project_detail.html'
@@ -38,6 +56,15 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         pk = self.kwargs['pk']
         return reverse_lazy('project_detail', kwargs={'pk': pk})
+
+    def get_form_kwargs(self):
+        kwargs = super(ProjectUpdateView, self).get_form_kwargs()
+        user = self.request.user
+
+        kwargs.update(
+            {'initial': {'lcuser': user}}
+        )
+        return kwargs
 
 
 class ScheduleListView(LoginRequiredMixin, ListView):
@@ -58,14 +85,24 @@ class ScheduleCreateView(LoginRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super(ScheduleCreateView, self).get_form_kwargs()
         project_id = self.kwargs['project_id']
+
         if project_id:
             project = Project.objects.get(id=project_id)
             # 进入网页，该字段值：{'initial': {}, 'prefix': None, 'instance': None}
-            print(kwargs)
+            user = self.request.user
             kwargs.update(
-                {'initial': {'project': project}}  # 给表单的phase字段传递外键实例
+                # 给表单的phase字段传递外键实例
+                {'initial': {'project': project, 'transactor': user.realname}}
             )
         return kwargs
+
+    def form_valid(self, form):
+        user = self.request.user
+        schedule = form.save(False)
+        schedule.cuser = user
+        schedule.lcuser = user
+        schedule.save(True)
+        return HttpResponseRedirect(self.success_url)
 
 
 class ScheduleDetailView(LoginRequiredMixin, DetailView):
@@ -83,3 +120,12 @@ class ScheduleUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         pk = self.kwargs['pk']
         return reverse_lazy('schedule_detail', kwargs={'pk': pk})
+
+    def get_form_kwargs(self):
+        kwargs = super(ScheduleUpdateView, self).get_form_kwargs()
+        user = self.request.user
+
+        kwargs.update(
+            {'initial': {'lcuser': user}}
+        )
+        return kwargs
