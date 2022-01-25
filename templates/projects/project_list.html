@@ -1,33 +1,85 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div>
-    <a class="btn btn-primary btn-lg m-1" href="{% url 'project_create' %}" role="button">添加</a></p>
+<div class="col-md-6">
+    <table>
+        <tr>
+            <td>
+                <select class="form-control" onchange="self.location.href=options[selectedIndex].value">
+                    {% for state in states %}
+                    {% if state.2 == True %}
+                    <option value="{{ state.1 }}" selected>{{ state.3 }}</option>
+                    {% else %}
+                    <option value="{{ state.1 }}">{{ state.3 }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <a class="btn btn-primary btn-lg m-1" href="{% url 'project_create' %}" role="button">添加</a>
+            </td>
+        </tr>
+    </table>
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">项目名</th>
-            <th scope="col">主体</th>
-            <th scope="col">状态</th>
-            <th scope="col">经办人</th>
-            <th scope="col">金额</th>
-            <th scope="col">近期活动时间</th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for project in project_list %}
-        <tr>
-            <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
-            <td>{{ project.businessentity }}</td>
-            <td>{{ project.task_state }}</td>
-            <td>{{ project.transactor }}</td>
-            <td>{{ project.amount }}</td>
-            <td>{{ project.lcdate }}</td>
-            <td><a href="{% url 'project_update' project.id%}">编辑</a></td>
-        </tr>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">项目名</th>
+                <th scope="col">主体</th>
+                <th scope="col">状态</th>
+                <th scope="col">经办人</th>
+                <th scope="col">金额</th>
+                <th scope="col">近期活动时间</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in project_list %}
+            <tr>
+                <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
+                <td>{{ project.businessentity }}</td>
+                <td>{{ project.task_state }}</td>
+                <td>{{ project.transactor }}</td>
+                <td>{{ project.amount }}</td>
+                <td>{{ project.lcdate }}</td>
+                <td><a href="{% url 'project_update' project.id%}">编辑</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if is_paginated %}
+<div class="container">
+    <ul class="pagination pagination justify-content-end">
+        <!--#上一页-->
+        <!--当有上一页时-->
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link"
+                href="{% url 'project_list' %}?page={{ page_obj.previous_page_number }}">上一页</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+        {% endif %}
+
+        <!--中间的页码，如果是当前页，添加active属性-->
+        {% for page in paginator.page_range %}
+        {% if page == page_obj.number %}
+        <li class="page-item active">
+            <a class="page-link" href="{% url 'project_list' %}?page={{ page }}">{{ page }}</a>
+        </li>
+        {% else %}
+        <li class="page-item"><a class="page-link" href="{% url 'project_list' %}?page={{ page }}">{{ page }}</a></li>
+        {% endif %}
         {% endfor %}
-    </tbody>
-</table>
+
+        <!--#下一页-->
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link"
+                href="{% url 'project_list' %}?page={{ page_obj.next_page_number }}">下一页</a></li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="x">下一页</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
 {% endblock %}

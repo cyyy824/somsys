@@ -24,7 +24,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
         if year == None:
             nowyear = datetime.datetime.now().strftime('%Y')
             return HttpResponseRedirect(reverse_lazy('budget_list', kwargs={'year': nowyear}))
-        
+
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -41,8 +41,9 @@ class BudgetListView(LoginRequiredMixin, ListView):
         for budget in context['budget_list']:
             aa = budget.pays.all().aggregate(Sum('amount'))
             allpay[budget.id] = aa['amount__sum']
-        
-        years = [ [year.year,reverse('budget_list', kwargs={'year': year.year}),False] for year in BudgetYear.objects.all()]
+
+        years = [[year.year, reverse('budget_list', kwargs={
+                                     'year': year.year}), False] for year in BudgetYear.objects.all()]
         for year in years:
             if year[0] == self.kwargs['year']:
                 year[2] = True
@@ -110,10 +111,11 @@ class PayListView(LoginRequiredMixin, ListView):
     template_name = 'cost/pay_list.html'
     model = Pay
     context_object_name = 'pay_list'
-    
+
     page_type = ''
     paginate_by = 20
     page_kwarg = 'page'
+    queryset = Pay.objects.order_by('-paydate')
 
     @property
     def page_number(self):
@@ -121,9 +123,6 @@ class PayListView(LoginRequiredMixin, ListView):
         page = self.kwargs.get(
             page_kwarg) or self.request.GET.get(page_kwarg) or 1
         return page
-    
-    
-
 
 
 class PayCreateView(LoginRequiredMixin, CreateView):

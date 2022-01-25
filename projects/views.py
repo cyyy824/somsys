@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponseRedirect
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.forms import ProjectForm, ScheduleForm
 
 from .models import Project, Schedule
+from django.db.models import Q
 # Create your views here.
 
 
@@ -15,6 +16,52 @@ class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_list.html'
     model = Project
     context_object_name = 'project_list'
+
+    page_type = ''
+    paginate_by = 20
+    page_kwarg = 'page'
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+
+    def get(self, request, *args, **kwargs):
+        state = self.kwargs.get('state')
+        states = ['all', 'fin', 'unfin']
+        if state == None or state not in states:
+            state = 'unfin'
+            return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
+
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        state = self.kwargs['state']
+        if state == 'fin':
+            new_context = Project.objects.filter(
+                task_state=u'完结').order_by('-cdate')
+        elif state == 'unfin':
+            new_context = Project.objects.filter(
+                ~Q(task_state=u'完结')).order_by('-cdate')
+        else:
+            new_context = Project.objects.all().order_by('-cdate')
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        states = [['all', reverse('project_list', kwargs={'state': 'all'}), False, '全部'],
+                  ['fin', reverse('project_list', kwargs={
+                                  'state': 'fin'}), False, '已完成'],
+                  ['unfin', reverse('project_list', kwargs={'state': 'unfin'}), False, '未完成']]
+        for state in states:
+            if state[0] == self.kwargs['state']:
+                state[2] = True
+                break
+        print(states)
+        context['states'] = states
+        return context
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
