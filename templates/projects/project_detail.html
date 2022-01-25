@@ -29,7 +29,7 @@
             <tbody>
                 {% for schedule in project.schedules.all %}
                 <tr>
-                    <td>{{ schedule.name }}</td>
+                    <td><a href="{% url 'schedule_detail' schedule.id%}">{{ schedule.name }}</a></td>
                     <td>{{ schedule.lcdate| date:"Y-m-d" }}</td>
                     <td>{{ schedule.transactor }}</td>
                     <td><a href="{% url 'schedule_update' schedule.id%}">修改</a></td>

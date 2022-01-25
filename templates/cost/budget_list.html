@@ -5,7 +5,22 @@
 
 {% block content %}
 <div>
-    <a class="btn btn-primary btn-lg m-1" href="{% url 'budget_create' %}" role="button">添加</a>
+    <table>
+        <tr>
+            <td>
+    <select class="form-control" onchange="self.location.href=options[selectedIndex].value">
+        {% for year in years %}
+        {% if year.2 == True %}
+        <option value ="{{ year.1 }}" selected>{{ year.0 }}年</option>
+        {% else %}
+        <option value ="{{ year.1 }}">{{ year.0 }}年</option>
+        {% endif %}
+        {% endfor %}
+    </select></td>
+    <td>
+    <a class="btn btn-primary btn-lg m-1" href="{% url 'budget_create' %}" role="button">添加</a></td>
+</tr>
+    </table>
 </div>
 <table class="table">
     <thead>
@@ -30,4 +45,5 @@
         {% endfor %}
     </tbody>
 </table>
+
 {% endblock %}

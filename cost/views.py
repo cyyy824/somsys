@@ -1,11 +1,12 @@
+from audioop import reverse
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Budget, Pay
+from .models import Budget, Pay, BudgetYear
 from .forms import BudgetForm, PayForm
 from django.db.models import Sum
 import datetime
@@ -18,13 +19,36 @@ class BudgetListView(LoginRequiredMixin, ListView):
     model = Budget
     context_object_name = 'budget_list'
 
+    def get(self, request, *args, **kwargs):
+        year = self.kwargs.get('year')
+        if year == None:
+            nowyear = datetime.datetime.now().strftime('%Y')
+            return HttpResponseRedirect(reverse_lazy('budget_list', kwargs={'year': nowyear}))
+        
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        year = self.kwargs['year']
+        yn = BudgetYear.objects.get(year=year)
+        new_context = Budget.objects.filter(year=yn)
+        return new_context
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # 加入支出统计
         allpay = {}
         for budget in context['budget_list']:
             aa = budget.pays.all().aggregate(Sum('amount'))
             allpay[budget.id] = aa['amount__sum']
+        
+        years = [ [year.year,reverse('budget_list', kwargs={'year': year.year}),False] for year in BudgetYear.objects.all()]
+        for year in years:
+            if year[0] == self.kwargs['year']:
+                year[2] = True
+                break
+
+        context['years'] = years
 
         context['allpay'] = allpay
 
@@ -86,6 +110,20 @@ class PayListView(LoginRequiredMixin, ListView):
     template_name = 'cost/pay_list.html'
     model = Pay
     context_object_name = 'pay_list'
+    
+    page_type = ''
+    paginate_by = 20
+    page_kwarg = 'page'
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+    
+    
+
 
 
 class PayCreateView(LoginRequiredMixin, CreateView):

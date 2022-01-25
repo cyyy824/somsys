@@ -9,6 +9,7 @@
 <p>创建日期：{{ schedule.cdate }}</p>
 <p>内容：{{ schedule.content }}</p>
 <p>备注：{{ schedule.remark }}</p>
+<p><a href="{% url 'schedule_update' schedule.id%}">编辑</a></p>
 </div>
 
 {% endblock %}
