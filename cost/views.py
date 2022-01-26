@@ -157,7 +157,7 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('pay_list')
 
     def get_form_kwargs(self):
-        kwargs = super(BudgetUpdateView, self).get_form_kwargs()
+        kwargs = super(PayUpdateView, self).get_form_kwargs()
         user = self.request.user
 
         kwargs.update(

@@ -73,10 +73,18 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super(ProjectCreateView, self).get_form_kwargs()
         user = self.request.user
-
+        pk = self.kwargs.get('parentpk')
         kwargs.update(
             {'initial': {'transactor': user.realname}}
         )
+        if pk != None:
+            try:
+                pp = Project.objects.get(id=pk)
+                kwargs.update(
+                    {'initial': {'parent_project': pp,'transactor': user.realname}}
+                )
+            except Project.DoesNotExist:
+                pass
         return kwargs
 
     def form_valid(self, form):
