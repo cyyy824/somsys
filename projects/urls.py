@@ -3,9 +3,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.ProjectListView.as_view(), name='project_list'),
+    #path('projects', views.ProjectListView.as_view(), name='project_list'),
     path('add', views.ProjectCreateView.as_view(), name='project_create'),
-    path('add/<int:parentpk>', views.ProjectCreateView.as_view(), name='project_create'),
+    path('add/<int:parentpk>', views.ProjectCreateView.as_view(),
+         name='project_create'),
     path('detail/<int:pk>', views.ProjectDetailView.as_view(), name='project_detail'),
     path('update/<int:pk>', views.ProjectUpdateView.as_view(), name='project_update'),
 
@@ -17,7 +18,7 @@ urlpatterns = [
     path('schedule/update/<int:pk>',
          views.ScheduleUpdateView.as_view(), name='schedule_update'),
 
-     path('<slug:state>', views.ProjectListView.as_view(), name='project_list'),
+    path('<slug:state>/', views.ProjectListView.as_view(), name='project_list'),
     #   path('schedule', views.ScheduleListView.as_view(), name='pay_list'),schedule
     #   path('schedule/add', views.ScheduleCreateView.as_view(), name='pay_create')
     #  path('pay', views.gridnode),

@@ -30,6 +30,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         state = self.kwargs.get('state')
+        print(state)
         states = ['all', 'fin', 'unfin']
         if state == None or state not in states:
             state = 'unfin'
@@ -38,7 +39,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        state = self.kwargs['state']
+        state = self.kwargs.get('state', 'unfin')
         if state == 'fin':
             new_context = Project.objects.filter(
                 task_state=u'完结').order_by('-cdate')
@@ -61,6 +62,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
                 break
         print(states)
         context['states'] = states
+        context['state'] = self.kwargs['state']
         return context
 
 
@@ -81,7 +83,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
             try:
                 pp = Project.objects.get(id=pk)
                 kwargs.update(
-                    {'initial': {'parent_project': pp,'transactor': user.realname}}
+                    {'initial': {'parent_project': pp, 'transactor': user.realname}}
                 )
             except Project.DoesNotExist:
                 pass
