@@ -1,0 +1,9 @@
+asgiref @ file:///home/cyyy/.cache/pypoetry/artifacts/c3/92/1c/3d42ce7ad1e9e2aa1621c3fa8ebc5e21bd880a768bd691fb4f0356baa8/asgiref-3.4.1-py3-none-any.whl
+Django @ file:///home/cyyy/.cache/pypoetry/artifacts/fb/ee/ba/b7e8035ca0d103ba5379f1157f53327e2fdc0d94b25dc57e1cd7c69541/Django-4.0.1-py3-none-any.whl
+Faker @ file:///home/cyyy/.cache/pypoetry/artifacts/c5/73/01/48ae3998f62524bea7af751446150065479d9de25fe74604dd655ca76f/Faker-11.3.0-py3-none-any.whl
+gunicorn @ file:///home/cyyy/.cache/pypoetry/artifacts/37/f2/1f/093462f3505c8f1a7053dfd76fb083d1f1f6b5c8ed61eacb94f7716c70/gunicorn-20.1.0-py3-none-any.whl
+PyMySQL @ file:///home/cyyy/.cache/pypoetry/artifacts/5b/9b/85/63920ca46fecb22be2cc63278db80de696ae307253c19f3290a2466007/PyMySQL-1.0.2-py3-none-any.whl
+python-dateutil @ file:///home/cyyy/.cache/pypoetry/artifacts/7a/d1/b6/999f99340cb434b29732e09965c2d168daccebc7474eaefbd723c9cfc1/python_dateutil-2.8.2-py2.py3-none-any.whl
+six @ file:///home/cyyy/.cache/pypoetry/artifacts/60/da/de/4165decf3fc3035969445598d13c707b5242b5909ddb00154aedd0aca4/six-1.16.0-py2.py3-none-any.whl
+sqlparse @ file:///home/cyyy/.cache/pypoetry/artifacts/ea/fd/ba/117a876397913faee210ef8bac93829e22ad9232662e656971383c0718/sqlparse-0.4.2-py3-none-any.whl
+text-unidecode @ file:///home/cyyy/.cache/pypoetry/artifacts/68/b3/63/d54cdb07c0df711a6e747df2b3b48cb781ce7d2b03fc528a104f70d770/text_unidecode-1.3-py2.py3-none-any.whl

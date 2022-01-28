@@ -31,6 +31,7 @@
                 <th scope="col">经办人</th>
                 <th scope="col">金额</th>
                 <th scope="col">近期活动时间</th>
+                <th scope="col">父项目</th>
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -43,6 +44,13 @@
                 <td>{{ project.transactor }}</td>
                 <td>{{ project.amount }}</td>
                 <td>{{ project.lcdate }}</td>
+                <td>
+                    {% if project.parent_project %}
+                    <a href="{% url 'project_detail' project.parent_project.id %}">{{ project.parent_project }}</a>
+                    {% else %}
+                    无
+                    {% endif %}
+                </td>
                 <td><a href="{% url 'project_update' project.id%}">编辑</a></td>
             </tr>
             {% endfor %}

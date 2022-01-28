@@ -7,7 +7,7 @@ from .models import Project, Schedule
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
-        fields = ['name', 'businessentity', 'task_state', 'amount',
+        fields = ['name', 'businessentity', 'task_state', 'content','amount',
                   'transactor', 'parent_project', 'remark', 'lcuser']
 
         labels = {
@@ -15,6 +15,7 @@ class ProjectForm(ModelForm):
             'businessentity': '单位主体',
             'task_state': '状态',
             'amount': '金额',
+            'content': '内容',
             'remark': '备注',
             'transactor': '经办人',
             'parent_project': '父项目',

@@ -60,7 +60,8 @@ if __name__ == '__main__':
                                          task_state=TAKESTATE[random.randint(
                                              0, len(TAKESTATE)-1)],
                                          transactor=fake.name(),
-                                         amount=random.randint(1, 200)*10000)
+                                         amount=random.randint(1, 200)*10000,
+                                         content=fake.text())
 
     for _ in range(200):
         project = Project.objects.order_by('?').first()

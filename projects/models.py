@@ -27,6 +27,7 @@ class Project(models.Model):
     task_state = models.CharField(max_length=10, choices=TASK_STATE_CHOICES)
     transactor = models.CharField(max_length=32)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
+    content = models.TextField(blank=True)
     cdate = models.DateTimeField(default=timezone.now)
     lcdate = models.DateTimeField(auto_now=True)
     remark = models.CharField(max_length=256, blank=True)
