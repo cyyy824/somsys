@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.forms import ProjectForm, ScheduleForm
 
 from .models import Project, Schedule
+from accounts.models import OAUser
 from django.db.models import Q
 # Create your views here.
 
@@ -90,10 +91,11 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = self.request.user
+        user = OAUser.objects.get(user=self.request.user)
         project = form.save(False)
         project.cuser = user
         project.lcuser = user
+        project.department = user.department
         project.save(True)
         return HttpResponseRedirect(self.success_url)
 
@@ -154,10 +156,11 @@ class ScheduleCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = self.request.user
+        user = OAUser.objects.get(user=self.request.user)
         schedule = form.save(False)
         schedule.cuser = user
         schedule.lcuser = user
+        schedule.department = user.department
         schedule.save(True)
         return HttpResponseRedirect(self.success_url)
 

@@ -6,9 +6,12 @@ from django.views.generic import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from accounts.models import Department, OAUser
 from .models import Budget, Pay, BudgetYear
 from .forms import BudgetForm, PayForm
 from django.db.models import Sum
+from django.db.models import Q
 import datetime
 
 # Create your views here.
@@ -28,9 +31,10 @@ class BudgetListView(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        user = OAUser.objects.get(user=self.request.user)
         year = self.kwargs['year']
         yn = BudgetYear.objects.get(year=year)
-        new_context = Budget.objects.filter(year=yn)
+        new_context = Budget.objects.filter(Q(year=yn) | Q(department=user.department))
         return new_context
 
     def get_context_data(self, **kwargs):
@@ -73,10 +77,11 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
 
-        user = self.request.user
+        user = OAUser.objects.get(user=self.request.user)
         budget = form.save(False)
         budget.cuser = user
         budget.lcuser = user
+        budget.department = user.department
         budget.save(True)
         return HttpResponseRedirect(self.success_url)
 
@@ -124,6 +129,11 @@ class PayListView(LoginRequiredMixin, ListView):
             page_kwarg) or self.request.GET.get(page_kwarg) or 1
         return page
 
+    def get_queryset(self):
+        user = OAUser.objects.get(user=self.request.user)
+        new_context = Budget.objects.filter(department=user.department)
+        return new_context
+
 
 class PayCreateView(LoginRequiredMixin, CreateView):
     template_name = 'cost/pay_create.html'
@@ -141,10 +151,11 @@ class PayCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = self.request.user
+        user = OAUser.objects.get(user=self.request.user)
         pay = form.save(False)
         pay.cuser = user
         pay.lcuser = user
+        pay.department = user.department
         pay.save(True)
         return HttpResponseRedirect(self.success_url)
 

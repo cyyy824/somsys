@@ -40,6 +40,8 @@ class Project(models.Model):
     parent_project = models.ForeignKey(
         'Project', on_delete=models.SET_NULL, related_name='child_projects', blank=True, null=True)
 
+    department = models.ForeignKey("accounts.Department", on_delete=models.CASCADE,related_name='projects',verbose_name="部门")
+
     def __str__(self):
         return self.name
 
@@ -62,6 +64,8 @@ class Schedule(models.Model):
 
     project = models.ForeignKey(
         'Project', on_delete=models.CASCADE, related_name='schedules')
+    
+    department = models.ForeignKey("accounts.Department",on_delete=models.CASCADE,verbose_name="部门")
 
     def __str__(self):
         return self.name

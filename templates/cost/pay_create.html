@@ -5,7 +5,15 @@
 <div class="m-5">
     <form action="{% url 'pay_create' %}" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <p>{{ form.name.label }}:{{ form.name }}</p>
+        <p>{{ form.businessentity.label }}:{{ form.businessentity }}</p>
+        <p>{{ form.paydate.label }}:{{ form.paydate }}</p>
+        <p>{{ form.transactor.label }}:{{ form.transactor }}</p>
+        <p>{{ form.amount.label }}:{{ form.amount }}</p>
+        <p>{{ form.project.label }}:{{ form.project }}</p>
+        <p>{{ form.budget.label }}:{{ form.budget }}</p>
+        <p>{{ form.remark.label }}:{{ form.remark }}</p>
         <input class="btn btn-primary m-1" type="submit" value="新增">
 
     </form>
