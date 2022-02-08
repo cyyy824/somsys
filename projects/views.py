@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.forms import ProjectForm, ScheduleForm
 
 from .models import Project, Schedule
-from accounts.models import OAUser
+from accounts.models import Department, OAUser
 from django.db.models import Q
 # Create your views here.
 
@@ -40,15 +40,16 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        user = OAUser.objects.get(id=self.request.user.id)
         state = self.kwargs.get('state', 'unfin')
         if state == 'fin':
             new_context = Project.objects.filter(
-                task_state=u'完结').order_by('-cdate')
+                Q(task_state=u'完结')|Q(department=user.department)).order_by('-cdate')
         elif state == 'unfin':
             new_context = Project.objects.filter(
-                ~Q(task_state=u'完结')).order_by('-cdate')
+                ~Q(task_state=u'完结')|Q(department=user.department)).order_by('-cdate')
         else:
-            new_context = Project.objects.all().order_by('-cdate')
+            new_context = Project.objects.filter(department=user.department).order_by('-cdate')
         return new_context
 
     def get_context_data(self, **kwargs):
@@ -156,7 +157,7 @@ class ScheduleCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = OAUser.objects.get(user=self.request.user)
+        user = OAUser.objects.get(id=self.request.user.id)
         schedule = form.save(False)
         schedule.cuser = user
         schedule.lcuser = user

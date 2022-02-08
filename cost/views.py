@@ -31,7 +31,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        user = OAUser.objects.get(user=self.request.user)
+        user = OAUser.objects.get(id=self.request.user.id)
         year = self.kwargs['year']
         yn = BudgetYear.objects.get(year=year)
         new_context = Budget.objects.filter(Q(year=yn) | Q(department=user.department))
@@ -77,7 +77,7 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
 
-        user = OAUser.objects.get(user=self.request.user)
+        user = OAUser.objects.get(id=self.request.user.id)
         budget = form.save(False)
         budget.cuser = user
         budget.lcuser = user
@@ -130,7 +130,7 @@ class PayListView(LoginRequiredMixin, ListView):
         return page
 
     def get_queryset(self):
-        user = OAUser.objects.get(user=self.request.user)
+        user = OAUser.objects.get(id=self.request.user.id)
         new_context = Budget.objects.filter(department=user.department)
         return new_context
 
@@ -151,7 +151,7 @@ class PayCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = OAUser.objects.get(user=self.request.user)
+        user = OAUser.objects.get(id=self.request.user.id)
         pay = form.save(False)
         pay.cuser = user
         pay.lcuser = user
