@@ -3,7 +3,7 @@ from django import forms
 from django.forms import widgets
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.forms import ModelForm
-from .models import OAUser,Department
+from .models import OAUser, Department
 
 
 class LoginForm(AuthenticationForm):
@@ -27,10 +27,8 @@ class RegisterForm(UserCreationForm):
         self.fields['realname'].widget = widgets.TextInput(
             attrs={'placeholder': "实名", "class": "form-control"})
 
-        self.fields['department'].widget = widgets.Select(
-            attrs={'placeholder': "部门", "class": "form-control"})
-        self.fields['department'].widget.choices = Department.objects.all().values_list('id','name')
-
+        self.fields['department'].widget.attrs.update(
+            {'placeholder': "部门", "class": "form-control"})
 
         self.fields['password1'].widget = widgets.PasswordInput(
             attrs={'placeholder': "密码", "class": "form-control"})
@@ -47,4 +45,5 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = OAUser
-        fields = ["username", "realname", 'department','password1', 'password2']
+        fields = ["username", "realname",
+                  'department', 'password1', 'password2']

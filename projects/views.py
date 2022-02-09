@@ -44,12 +44,13 @@ class ProjectListView(LoginRequiredMixin, ListView):
         state = self.kwargs.get('state', 'unfin')
         if state == 'fin':
             new_context = Project.objects.filter(
-                Q(task_state=u'完结')|Q(department=user.department)).order_by('-cdate')
+                Q(task_state=u'完结') | Q(department=user.department)).order_by('-cdate')
         elif state == 'unfin':
             new_context = Project.objects.filter(
-                ~Q(task_state=u'完结')|Q(department=user.department)).order_by('-cdate')
+                ~Q(task_state=u'完结') | Q(department=user.department)).order_by('-cdate')
         else:
-            new_context = Project.objects.filter(department=user.department).order_by('-cdate')
+            new_context = Project.objects.filter(
+                department=user.department).order_by('-cdate')
         return new_context
 
     def get_context_data(self, **kwargs):
@@ -78,6 +79,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         kwargs = super(ProjectCreateView, self).get_form_kwargs()
         user = self.request.user
         pk = self.kwargs.get('parentpk')
+        kwargs.update({'user': self.request.user})
         kwargs.update(
             {'initial': {'transactor': user.realname}}
         )
@@ -120,7 +122,7 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(ProjectUpdateView, self).get_form_kwargs()
         user = self.request.user
-
+        kwargs.update({'user': self.request.user})
         kwargs.update(
             {'initial': {'lcuser': user}}
         )
