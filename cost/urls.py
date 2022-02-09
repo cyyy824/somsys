@@ -8,6 +8,7 @@ urlpatterns = [
     path('budget/add', views.BudgetCreateView.as_view(),name='budget_create'),
     path('budget/update/<int:pk>', views.BudgetUpdateView.as_view(),name='budget_update'),
     path('budget/detail/<int:pk>', views.BudgetDetailView.as_view(),name='budget_detail'),
+    path('budget/ajax/load_budget', views.load_budgets,name='load_budget'),
 
     path('pay', views.PayListView.as_view(), name='pay_list'),
     path('pay/update/<int:pk>', views.PayUpdateView.as_view(), name='pay_update'),

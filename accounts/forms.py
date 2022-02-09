@@ -27,8 +27,10 @@ class RegisterForm(UserCreationForm):
         self.fields['realname'].widget = widgets.TextInput(
             attrs={'placeholder': "实名", "class": "form-control"})
 
-        #self.fields['department'].widget = widgets.Select(
-        #    attrs={'placeholder': "部门", "class": "form-control"})
+        self.fields['department'].widget = widgets.Select(
+            attrs={'placeholder': "部门", "class": "form-control"})
+        self.fields['department'].widget.choices = Department.objects.all().values_list('id','name')
+
 
         self.fields['password1'].widget = widgets.PasswordInput(
             attrs={'placeholder': "密码", "class": "form-control"})

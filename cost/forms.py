@@ -1,7 +1,8 @@
 from django.db import models
 import django.forms
+from django.forms import widgets
 from django.forms import ModelForm
-from .models import Budget, Pay
+from .models import Budget, BudgetYear, Pay
 
 
 class BudgetForm(ModelForm):
@@ -21,6 +22,14 @@ class BudgetForm(ModelForm):
 
 
 class PayForm(ModelForm):
+    budgetyear = django.forms.ModelChoiceField(label="出版社", queryset=BudgetYear.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super(PayForm, self).__init__(*args, **kwargs)
+
+        self.fields['name'].widget = widgets.TextInput(attrs={"class": "form-control"})
+        self.fields['budget'].queryset = Budget.objects.none()
+
     class Meta:
         model = Pay
         fields = ['name', 'businessentity', 'paydate', 'transactor',

@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for budget in budgets %}
+<option value="{{ budget.pk }}">{{ budget.name }}</option>
+{% endfor %}

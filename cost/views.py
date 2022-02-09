@@ -15,7 +15,11 @@ from django.db.models import Q
 import datetime
 
 # Create your views here.
-
+def load_budgets(request):
+    user = OAUser.objects.get(id=request.user.id)
+    year_id = request.GET.get('yearid')
+    budgets = Budget.objects.filter(Q(year_id=year_id)|Q(department=user.department))
+    return render(request, 'cost/budget_dropdown_list_options.html', {'budgets': budgets})
 
 class BudgetListView(LoginRequiredMixin, ListView):
     template_name = 'cost/budget_list.html'
