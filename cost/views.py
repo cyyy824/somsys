@@ -19,7 +19,7 @@ import datetime
 
 
 def load_budgets(request):
-    user = OAUser.objects.get(id=request.user.id)
+    user = request.user
     year_id = request.GET.get('yearid')
     budgets = Budget.objects.filter(
         Q(year_id=year_id) | Q(department=user.department))
@@ -30,6 +30,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
     template_name = 'cost/budget_list.html'
     model = Budget
     context_object_name = 'budget_list'
+    
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get('year')
@@ -40,7 +41,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        user = OAUser.objects.get(id=self.request.user.id)
+        user = self.request.user
         year = self.kwargs['year']
         yn = BudgetYear.objects.get(year=year)
         new_context = Budget.objects.filter(
@@ -87,7 +88,7 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
 
-        user = OAUser.objects.get(id=self.request.user.id)
+        user = self.request.user
         budget = form.save(False)
         budget.cuser = user
         budget.lcuser = user
@@ -130,7 +131,8 @@ class PayListView(LoginRequiredMixin, ListView):
     page_type = ''
     paginate_by = 20
     page_kwarg = 'page'
-    queryset = Pay.objects.order_by('-paydate')
+    #ordering = ['-paydate'] 
+    #queryset = Pay.objects.order_by('-paydate')
 
     @property
     def page_number(self):
@@ -140,8 +142,8 @@ class PayListView(LoginRequiredMixin, ListView):
         return page
 
     def get_queryset(self):
-        user = OAUser.objects.get(id=self.request.user.id)
-        new_context = Pay.objects.filter(department=user.department)
+        user = self.request.user
+        new_context = Pay.objects.filter(department=user.department).order_by('-paydate')
         return new_context
 
 
@@ -181,7 +183,7 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(PayUpdateView, self).get_form_kwargs()
         user = self.request.user
-        kwargs.update({'user': self.request.user})
+        kwargs.update({'user': user})
         kwargs.update(
             {'initial': {'lcuser': user}}
         )

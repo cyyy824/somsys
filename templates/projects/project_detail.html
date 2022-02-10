@@ -35,7 +35,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for cproject in project.child_projects.all %}
+                {% for cproject in project.child_projects.all|dictsortreversed:"lcdate" %}
                 <tr>
                     <td><a href="{% url 'project_detail' cproject.id%}">{{ cproject.name }}</a></td>
                     <td>{{ cproject.lcdate| date:"Y-m-d" }}</td>
@@ -45,6 +45,36 @@
                 {% empty %}
                 <tr>
                     <td colspan="3">空</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h3>支付</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">支付项</th>
+                    <th scope="col">支付日期</th>
+                    <th scope="col">经办人</th>
+                    <th scope="col">金额</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pay in project.pays.all|dictsortreversed:"paydate" %}
+                <tr>
+                    <td>{{ pay.name }}</td>
+                    <td>{{ pay.paydate }}</td>
+                    <td>{{ pay.transactor }}</td>
+                    <td>{{ pay.amount }}</td>
+                    <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">空</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -64,7 +94,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for schedule in project.schedules.all %}
+                {% for schedule in project.schedules.all|dictsortreversed:"lcdate" %}
                 <tr>
                     <td><a href="{% url 'schedule_detail' schedule.id%}">{{ schedule.name }}</a></td>
                     <td>{{ schedule.lcdate| date:"Y-m-d" }}</td>

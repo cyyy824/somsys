@@ -31,7 +31,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         state = self.kwargs.get('state')
-        print(state)
+
         states = ['all', 'fin', 'unfin']
         if state == None or state not in states:
             state = 'unfin'
@@ -40,7 +40,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        user = OAUser.objects.get(id=self.request.user.id)
+        user = self.request.user
         state = self.kwargs.get('state', 'unfin')
         if state == 'fin':
             new_context = Project.objects.filter(
@@ -63,7 +63,6 @@ class ProjectListView(LoginRequiredMixin, ListView):
             if state[0] == self.kwargs['state']:
                 state[2] = True
                 break
-        print(states)
         context['states'] = states
         context['state'] = self.kwargs['state']
         return context
@@ -94,7 +93,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = OAUser.objects.get(user=self.request.user)
+        user = self.request.user
         project = form.save(False)
         project.cuser = user
         project.lcuser = user
@@ -122,7 +121,7 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(ProjectUpdateView, self).get_form_kwargs()
         user = self.request.user
-        kwargs.update({'user': self.request.user})
+        kwargs.update({'user': user})
         kwargs.update(
             {'initial': {'lcuser': user}}
         )
@@ -159,13 +158,13 @@ class ScheduleCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        user = OAUser.objects.get(id=self.request.user.id)
+        user = self.request.user
         schedule = form.save(False)
         schedule.cuser = user
         schedule.lcuser = user
         schedule.department = user.department
         schedule.save(True)
-        return HttpResponseRedirect(self.success_url)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ScheduleDetailView(LoginRequiredMixin, DetailView):

@@ -12,11 +12,32 @@
     <p>修改日期：{{ budget.lcdate }}</p>
 
     <h3>支出</h3>
-    {% for pay in budget.pays.all %}
-    <p>{{ pay.name }}:{{ pay.amount }}</p>
-    {% endfor %}
-
-
-
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">支付项</th>
+                <th scope="col">支付日期</th>
+                <th scope="col">经办人</th>
+                <th scope="col">金额</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pay in budget.pays.all|dictsortreversed:"paydate" %}
+            <tr>
+                <td>{{ pay.name }}</td>
+                <td>{{ pay.paydate }}</td>
+                <td>{{ pay.transactor }}</td>
+                <td>{{ pay.amount }}</td>
+                <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">空</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
 </div>
 {% endblock %}
