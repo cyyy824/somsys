@@ -3,10 +3,32 @@
 {% block content %}
 
 <div class="m-5">
-    <form action="{% url 'pay_update' pay.id %}" method="post">
+    <form class="form-line" id="payForm" data-budgets-url="{% url 'load_budget' %}"
+        action="{% url 'pay_update' pay.id %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <input class="btn btn-primary m-1" type="submit" value="更新" />
     </form>
 </div>
+{% endblock %}
+
+{% block addjs %}
+
+
+<script>
+    $("#id_budgetyear").change(function () {
+        var url = $("#payForm").attr("data-budgets-url");  // 获取 `load_cities` view
+        var budgetyearId = $(this).val();  // 在HTML中获取选取的国家ID
+        $.ajax({                       // 初始化 AJAX 请求
+            url: url,                    //设置请求地址(= localhost:8000/hr/ajax/load-cities/)
+            data: {
+                'yearid': budgetyearId       // countryId传到GET参数
+            },
+            success: function (data) {   //  视图函数 `load_cities`返回到`data`
+                $("#id_budget").html(data);  // 用返回的数据替换城市输入框的内容
+            }
+        });
+    });
+</script>
+
 {% endblock %}

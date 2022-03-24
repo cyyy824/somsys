@@ -30,7 +30,6 @@ class BudgetListView(LoginRequiredMixin, ListView):
     template_name = 'cost/budget_list.html'
     model = Budget
     context_object_name = 'budget_list'
-    
 
     def get(self, request, *args, **kwargs):
         year = self.kwargs.get('year')
@@ -131,7 +130,7 @@ class PayListView(LoginRequiredMixin, ListView):
     page_type = ''
     paginate_by = 20
     page_kwarg = 'page'
-    #ordering = ['-paydate'] 
+    #ordering = ['-paydate']
     #queryset = Pay.objects.order_by('-paydate')
 
     @property
@@ -143,7 +142,8 @@ class PayListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        new_context = Pay.objects.filter(department=user.department).order_by('-paydate')
+        new_context = Pay.objects.filter(
+            department=user.department).order_by('-paydate')
         return new_context
 
 
@@ -156,11 +156,23 @@ class PayCreateView(LoginRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super(PayCreateView, self).get_form_kwargs()
 
+        project_id = self.kwargs.get('project_id')
+
         kwargs.update({'user': self.request.user})
-        kwargs.update(
-            {'initial': {'paydate': datetime.date.today(), 'remark': '',
-                         'transactor': self.request.user.realname}}
-        )
+        if project_id:
+            project = Project.objects.get(id=project_id)
+            # 进入网页，该字段值：{'initial': {}, 'prefix': None, 'instance': None}
+            user = self.request.user
+            kwargs.update(
+                # 给表单的phase字段传递外键实例
+                {'initial': {'paydate': datetime.date.today(), 'remark': '',
+                             'project': project, 'transactor': user.realname}}
+            )
+        else:
+            kwargs.update(
+                {'initial': {'paydate': datetime.date.today(), 'remark': '',
+                             'transactor': self.request.user.realname}}
+            )
         return kwargs
 
     def form_valid(self, form):
@@ -187,4 +199,5 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
         kwargs.update(
             {'initial': {'lcuser': user}}
         )
+
         return kwargs
