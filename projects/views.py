@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -10,12 +10,22 @@ from projects.forms import ProjectForm, ScheduleForm
 from .models import Project, Schedule
 from accounts.models import Department, OAUser
 from django.db.models import Q
+import json
+from django.core import serializers
 # Create your views here.
 
+
 def load_projects(request):
-    user = request.user
-    projects = Project.objects.filter(department=user.department)
-    return render(request, 'projects/project_dropdown_list_options.html', {'projects': projects})
+
+    kw = request.GET.get('q', '')
+    data = {}
+    if kw != '':
+        user = request.user
+        projects = Project.objects.filter(
+            Q(department=user.department), Q(name__contains=kw))
+        data["results"] = [{"id": lt.pk, "text": lt.name} for lt in projects]
+    data["pagination"] = {"more": True}
+    return HttpResponse(json.dumps(data))
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -49,10 +59,10 @@ class ProjectListView(LoginRequiredMixin, ListView):
         state = self.kwargs.get('state', 'unfin')
         if state == 'fin':
             new_context = Project.objects.filter(
-                Q(task_state=u'完结') , Q(department=user.department)).order_by('-cdate')
+                Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
         elif state == 'unfin':
             new_context = Project.objects.filter(
-                ~Q(task_state=u'完结') , Q(department=user.department)).order_by('-cdate')
+                ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
         else:
             new_context = Project.objects.filter(
                 department=user.department).order_by('-cdate')

@@ -3,19 +3,52 @@
 {% block content %}
 
 <div class="m-5">
-<form action="{% url 'project_create' %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input class="btn btn-primary m-1" type="submit" value="新增">
+    <form action="{% url 'project_create' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-primary m-1" type="submit" value="新增">
 
-</form>
+    </form>
 </div>
 {% endblock %}
 
+
 {% block addjs %}
+
+
 <link href="/static/css/select2.min.css" rel="stylesheet" />
 <script src="/static/js/select2.min.js"></script>
+
 <script>
-    var selectorx = $('#id_parent_project').select2();
+    $('#id_parent_project').select2({
+        ajax: {
+            url: '/ajax/load_projects',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                // Transforms the top-level key of the response object from 'items' to 'results'
+                console.log(data)
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+        },
+        placeholder: '搜索项',
+        minimumInputLength: 1,
+    });
+
+
 </script>
+
+
 {% endblock %}

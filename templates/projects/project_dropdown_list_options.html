@@ -1,11 +1,10 @@
 {
-    "results": [
-    {% for project in projects %}
-    {"id":{{ project.pk }}, "text":"{{ project.name }}"},
-    {% endfor %}
-    ],
-    "pagination": {
-        "more": true
-      }
+"results": [
+{% for project in projects %}
+{"id":{{ project.pk }}, "text":"{{ project.name }}"}
+{% endfor %}
+],
+"pagination": {
+"more": true
 }
-
+}
