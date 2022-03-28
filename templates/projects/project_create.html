@@ -11,3 +11,11 @@
 </form>
 </div>
 {% endblock %}
+
+{% block addjs %}
+<link href="/static/css/select2.min.css" rel="stylesheet" />
+<script src="/static/js/select2.min.js"></script>
+<script>
+    var selectorx = $('#id_parent_project').select2();
+</script>
+{% endblock %}

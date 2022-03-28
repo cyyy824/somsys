@@ -1,4 +1,11 @@
-<option value="">---------</option>
-{% for project in projects %}
-<option value="{{ project.pk }}">{{ project.name }}</option>
-{% endfor %}
+{
+    "results": [
+    {% for project in projects %}
+    {"id":{{ project.pk }}, "text":"{{ project.name }}"},
+    {% endfor %}
+    ],
+    "pagination": {
+        "more": true
+      }
+}
+

@@ -46,6 +46,7 @@ class ScheduleForm(ModelForm):
         super(ScheduleForm, self).__init__(*args, **kwargs)
         self.fields['project'].widget.attrs.update({"class": "form-control"})
         self.fields['name'].widget.attrs.update({"class": "form-control"})
+        self.fields['task_type'].widget.attrs.update({"class": "form-control"})
         self.fields['transactor'].widget.attrs.update(
             {"class": "form-control"})
         self.fields['content'].widget.attrs.update({"class": "form-control"})
@@ -53,11 +54,12 @@ class ScheduleForm(ModelForm):
 
     class Meta:
         model = Schedule
-        fields = ['project', 'name', 'transactor',
+        fields = ['project', 'name', 'task_type','transactor',
                   'content', 'remark', 'lcuser']
 
         labels = {
             'name': '事项',
+            'task_type':'类型',
             'remark': '备注',
             'transactor': '经办人',
             'project': '项目',

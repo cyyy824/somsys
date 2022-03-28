@@ -68,7 +68,6 @@ class PayForm(ModelForm):
         self.user = kwargs.pop('user')
         super(PayForm, self).__init__(*args, **kwargs)
         project = self.initial.get('project')
-        print(self.initial)
 
         self.fields['name'].widget.attrs.update({"class": "form-control"})
         self.fields['businessentity'].widget.attrs.update(
@@ -82,22 +81,34 @@ class PayForm(ModelForm):
         self.fields['budget'].widget.attrs.update({"class": "form-control"})
 
         self.fields['project'].widget.attrs.update({"class": "form-control"})
-        self.fields["project"].queryset = Project.objects.filter(
-            department=self.user.department)
+        
 
         self.fields['remark'].widget.attrs.update({"class": "form-control"})
 
-        print(self.initial)
-        self.initial['project'] = project.id
+        self.fields["project"].queryset = Project.objects.none()
+        self.fields['budget'].queryset = Budget.objects.none()
+        if 'project' in self.data:
+            self.fields["project"].queryset = Project.objects.filter(department=self.user.department)
+
+        if 'budgetyear' in self.data:
+            try:
+                yearid = int(self.data.get('budgetyear'))
+                self.fields['budget'].queryset = Budget.objects.filter(
+                    year_id=yearid)
+            except (ValueError, TypeError):
+                pass
+
+        #self.initial['project'] = project.id
+        
         budgetid = self.initial.get('budget')
+
         if budgetid is not None:
             budget = Budget.objects.get(pk=budgetid)
             #self.budgetyear = budget.year
             self.initial['budgetyear'] = budget.year
             self.fields['budget'].queryset = Budget.objects.filter(
                 year=budget.year)
-        else:
-            self.fields['budget'].queryset = Budget.objects.none()
+        
 
         # elif self.instance.pk:
         #    self.fields['budget'].queryset = self.instance.country.city_set.order_by('name')

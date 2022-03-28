@@ -12,6 +12,11 @@ from accounts.models import Department, OAUser
 from django.db.models import Q
 # Create your views here.
 
+def load_projects(request):
+    user = request.user
+    projects = Project.objects.filter(department=user.department)
+    return render(request, 'projects/project_dropdown_list_options.html', {'projects': projects})
+
 
 class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_list.html'
@@ -44,10 +49,10 @@ class ProjectListView(LoginRequiredMixin, ListView):
         state = self.kwargs.get('state', 'unfin')
         if state == 'fin':
             new_context = Project.objects.filter(
-                Q(task_state=u'完结') | Q(department=user.department)).order_by('-cdate')
+                Q(task_state=u'完结') , Q(department=user.department)).order_by('-cdate')
         elif state == 'unfin':
             new_context = Project.objects.filter(
-                ~Q(task_state=u'完结') | Q(department=user.department)).order_by('-cdate')
+                ~Q(task_state=u'完结') , Q(department=user.department)).order_by('-cdate')
         else:
             new_context = Project.objects.filter(
                 department=user.department).order_by('-cdate')
@@ -131,7 +136,25 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 class ScheduleListView(LoginRequiredMixin, ListView):
     template_name = 'projects/schedule_list.html'
     model = Schedule
-    context_object_name = 'project_list'
+    context_object_name = 'schedule_list'
+    #ordering = ['-lcdate']
+
+    page_type = ''
+    paginate_by = 30
+    page_kwarg = 'page'
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+
+    def get_queryset(self):
+        user = self.request.user
+        new_context = Schedule.objects.filter(
+            department=user.department).order_by('-lcdate')
+        return new_context
 
 
 class ScheduleCreateView(LoginRequiredMixin, CreateView):

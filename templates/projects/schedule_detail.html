@@ -1,11 +1,12 @@
-{% extends "base.html" %}
+{% extends "projects/schedule_base.html" %}
 
 {% block content %}
 <h1>{{ schedule.project }}</h1>
 <div class="m-5">
 
 <h2>{{ schedule.name }}</h2>
-<p>经办人：{{ scheduletransactor }}</p>
+<p>类型：{{ schedule.task_type }}</p>
+<p>经办人：{{ schedule.transactor }}</p>
 <p>创建日期：{{ schedule.cdate }}</p>
 <p>内容：{{ schedule.content }}</p>
 <p>备注：{{ schedule.remark }}</p>

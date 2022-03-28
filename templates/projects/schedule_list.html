@@ -1,30 +1,26 @@
-{% extends "base.html" %}
+{% extends "projects/schedule_base.html" %}
 
 {% block content %}
 <div>
-    <a class="btn btn-primary btn-lg m-1" href="{% url 'schedule_create' %}" role="button">添加</a></p>
+   
   </div>
     <table class="table">
         <thead>
         <tr>
             <th scope="col">事项</th>
-            <th scope="col">主体</th>
-            <th scope="col">状态</th>
+            <th scope="col">类型</th>
             <th scope="col">经办人</th>
-            <th scope="col">金额</th>
-            <th scope="col">近期活动时间</th>
+            <th scope="col">时间</th>
             <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
-        {% for project in project_list %}
+        {% for schedule in schedule_list %}
             <tr>
-                <td><a href="{% url 'schedule_detail' schedule.id%}">{{ project.name }}</a></td>
-                <td>{{ project.businessentity }}</td>
-                <td>{{ project.task_state }}</td>
-                <td>{{ project.transactor }}</td>
-                <td>{{ project.amount }}</td>
-                <td>{{ project.lcdate }}</td>
+                <td><a href="{% url 'schedule_detail' schedule.id%}">{{ schedule.name }}</a></td>
+                <td>{{ schedule.task_type }}</td>
+                <td>{{ schedule.transactor }}</td>
+                <td>{{ schedule.lcdate }}</td>
                 <td><a href="{% url 'schedule_update' schedule.id%}">修改</a></td>
             </tr>
         {% endfor %}

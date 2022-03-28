@@ -22,7 +22,7 @@ def load_budgets(request):
     user = request.user
     year_id = request.GET.get('yearid')
     budgets = Budget.objects.filter(
-        Q(year_id=year_id) | Q(department=user.department))
+        Q(year_id=year_id) , Q(department=user.department))
     return render(request, 'cost/budget_dropdown_list_options.html', {'budgets': budgets})
 
 
@@ -44,7 +44,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
         year = self.kwargs['year']
         yn = BudgetYear.objects.get(year=year)
         new_context = Budget.objects.filter(
-            Q(year=yn) | Q(department=user.department))
+            Q(year=yn) , Q(department=user.department))
         return new_context
 
     def get_context_data(self, **kwargs):
