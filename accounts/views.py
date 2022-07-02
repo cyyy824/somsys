@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import FormView, RedirectView
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.auth import logout
-from .forms import LoginForm, RegisterForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import LoginForm, RegisterForm, ChangePasswordForm
 from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect
 # Create your views here.
@@ -20,6 +21,12 @@ class LogoutView(RedirectView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return super(LogoutView, self).get(request, *args, **kwargs)
+
+
+class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
+    form_class = ChangePasswordForm
+    success_url = reverse_lazy('project_list')
+    template_name = 'accounts/changepassword.html'
 
 
 class OARegisterView(FormView):

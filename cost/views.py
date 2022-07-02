@@ -1,7 +1,7 @@
 from audioop import reverse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
@@ -14,6 +14,7 @@ from .forms import BudgetForm, PayForm
 from django.db.models import Sum
 from django.db.models import Q
 import datetime
+import csv
 
 # Create your views here.
 
@@ -22,7 +23,7 @@ def load_budgets(request):
     user = request.user
     year_id = request.GET.get('yearid')
     budgets = Budget.objects.filter(
-        Q(year_id=year_id) , Q(department=user.department))
+        Q(year_id=year_id), Q(department=user.department))
     return render(request, 'cost/budget_dropdown_list_options.html', {'budgets': budgets})
 
 
@@ -44,7 +45,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
         year = self.kwargs['year']
         yn = BudgetYear.objects.get(year=year)
         new_context = Budget.objects.filter(
-            Q(year=yn) , Q(department=user.department))
+            Q(year=yn), Q(department=user.department))
         return new_context
 
     def get_context_data(self, **kwargs):
@@ -201,3 +202,21 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
         )
 
         return kwargs
+
+
+def export_pays(request):
+    response = HttpResponse(content_type='text/csv')
+    print(request.headers.get('User-Agent'))
+    response.charset = 'utf-8-sig' if "Windows" in request.headers.get(
+        'User-Agent') else 'utf-8'
+    response['Content-Disposition'] = 'attachment; filename="pays.csv"'
+
+    writer = csv.writer(response)
+    user = request.user
+    pay_list = Pay.objects.filter(
+        department=user.department).order_by('-paydate')
+    for pay in pay_list:
+        writer.writerow([pay.name, pay.businessentity, str(
+            pay.paydate), pay.transactor, pay.amount, pay.budget])
+
+    return response

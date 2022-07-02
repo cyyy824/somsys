@@ -12,6 +12,7 @@ from accounts.models import Department, OAUser
 from django.db.models import Q
 import json
 from django.core import serializers
+import csv
 # Create your views here.
 
 
@@ -224,3 +225,21 @@ class ScheduleUpdateView(LoginRequiredMixin, UpdateView):
             {'initial': {'lcuser': user}}
         )
         return kwargs
+
+
+def export_schedules(request):
+    response = HttpResponse(content_type='text/csv')
+    print(request.headers.get('User-Agent'))
+    response.charset = 'utf-8-sig' if "Windows" in request.headers.get(
+        'User-Agent') else 'utf-8'
+    response['Content-Disposition'] = 'attachment; filename="schedules.csv"'
+
+    writer = csv.writer(response)
+    user = request.user
+    schedule_list = Schedule.objects.filter(
+        department=user.department).order_by('-lcdate')
+    for schedule in schedule_list:
+        writer.writerow([schedule.name, schedule.project.name,
+                        schedule.task_type, schedule.transactor, str(schedule.lcdate)])
+
+    return response

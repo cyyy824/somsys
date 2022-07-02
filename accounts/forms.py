@@ -1,7 +1,7 @@
 from django.db import models
 from django import forms
 from django.forms import widgets
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.forms import ModelForm
 from .models import OAUser, Department
 
@@ -47,3 +47,17 @@ class RegisterForm(UserCreationForm):
         model = OAUser
         fields = ["username", "realname",
                   'department', 'password1', 'password2']
+
+
+class ChangePasswordForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(PasswordChangeForm, self).__init__(*args, **kwargs)
+
+        self.fields['old_password'].widget = widgets.PasswordInput(
+            attrs={'placeholder': "旧密码", "class": "form-control"})
+
+        self.fields['new_password1'].widget = widgets.PasswordInput(
+            attrs={'placeholder': "新密码", "class": "form-control"})
+
+        self.fields['new_password2'].widget = widgets.PasswordInput(
+            attrs={'placeholder': "新密码验证", "class": "form-control"})

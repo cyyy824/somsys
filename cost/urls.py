@@ -16,8 +16,8 @@ urlpatterns = [
     path('pay/update/<int:pk>', views.PayUpdateView.as_view(), name='pay_update'),
     path('pay/add', views.PayCreateView.as_view(), name='pay_create'),
     path('pay/add/<int:project_id>',
-         views.PayCreateView.as_view(), name='pay_create')
-
+         views.PayCreateView.as_view(), name='pay_create'),
+    path('pay/exportpays', views.export_pays, name='export_pays')
     #  path('pay', views.gridnode),
 
 ]
