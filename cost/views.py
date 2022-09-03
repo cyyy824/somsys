@@ -141,10 +141,22 @@ class PayListView(LoginRequiredMixin, ListView):
             page_kwarg) or self.request.GET.get(page_kwarg) or 1
         return page
 
+    def post(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
         user = self.request.user
-        new_context = Pay.objects.filter(
-            department=user.department).order_by('-paydate')
+        new_context = None
+        if self.request.method == 'POST':
+            name = self.request.POST.get('name', '')
+            new_context = Pay.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=name) |
+                Q(transactor__contains=name)
+            ).order_by('-paydate')
+        else:
+            new_context = Pay.objects.filter(
+                department=user.department).order_by('-paydate')
         return new_context
 
 
@@ -206,7 +218,6 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
 
 def export_pays(request):
     response = HttpResponse(content_type='text/csv')
-    print(request.headers.get('User-Agent'))
     response.charset = 'utf-8-sig' if "Windows" in request.headers.get(
         'User-Agent') else 'utf-8'
     response['Content-Disposition'] = 'attachment; filename="pays.csv"'

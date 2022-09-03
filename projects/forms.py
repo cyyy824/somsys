@@ -1,5 +1,5 @@
 from django.db import models
-import django.forms
+from django import forms
 from django.forms import ModelForm
 from .models import Project, Schedule
 
@@ -38,7 +38,7 @@ class ProjectForm(ModelForm):
             'transactor': '经办人',
             'parent_project': '父项目',
         }
-        widgets = {'lcuser': django.forms.HiddenInput()}
+        widgets = {'lcuser': forms.HiddenInput()}
 
 
 class ScheduleForm(ModelForm):
@@ -65,7 +65,7 @@ class ScheduleForm(ModelForm):
             'project': '项目',
             'content': '内容',
         }
-        widgets = {'lcuser': django.forms.HiddenInput()}
+        widgets = {'lcuser': forms.HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         super(ScheduleForm, self).__init__(*args, **kwargs)
