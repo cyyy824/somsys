@@ -29,68 +29,6 @@ def load_projects(request):
     return HttpResponse(json.dumps(data))
 
 
-class ProjectSearchView(LoginRequiredMixin, ListView):
-    template_name = 'projects/project_list.html'
-    model = Project
-    context_object_name = 'project_list'
-
-    page_type = ''
-    paginate_by = 20
-    page_kwarg = 'page'
-
-    @property
-    def page_number(self):
-        page_kwarg = self.page_kwarg
-        page = self.kwargs.get(
-            page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        return page
-
-    def post(self, request, *args, **kwargs):
-        print(request.POST)
-
-        name = request.POST.get('name', '')
-        if name != '':
-            return HttpResponseRedirect(reverse_lazy('project_s', kwargs={'ss': name, 'state': 'all'}))
-        return super().get(request, *args, **kwargs)
-
-    # def get(self, request, *args, **kwargs):
-    #     ss = self.kwargs.get('s')
-
-    #     states = ['all', 'fin', 'unfin']
-    #     if state == None or state not in states:
-    #         state = 'all'
-    #         return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'ss':ss,'state': state}))
-        # return super().get(request, *args, **kwargs)
-
-    def get_queryset(self):
-        new_context = None
-        user = self.request.user
-        state = self.kwargs.get('state', 'all')
-        ss = self.kwargs.get('ss', '')
-        if self.request.method == 'POST':
-
-            new_context = Project.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=ss) |
-                Q(transactor__contains=ss)
-            ).order_by('-cdate')
-        return new_context
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     states = [['all', reverse('project_list', kwargs={'state': 'all'}), False, '全部'],
-    #               ['fin', reverse('project_list', kwargs={
-    #                               'state': 'fin'}), False, '已完成'],
-    #               ['unfin', reverse('project_list', kwargs={'state': 'unfin'}), False, '未完成']]
-    #     for state in states:
-    #         if state[0] == self.kwargs['state']:
-    #             state[2] = True
-    #             break
-    #     context['states'] = states
-    #     context['state'] = self.kwargs['state']
-    #     return context
-
-
 class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_list.html'
     model = Project
@@ -151,11 +89,11 @@ class ProjectListView(LoginRequiredMixin, ListView):
                                   'state': 'fin'}), False, '已完成'],
                   ['unfin', reverse('project_list', kwargs={'state': 'unfin'}), False, '未完成']]
         for state in states:
-            if state[0] == self.kwargs['state']:
+            if state[0] == self.kwargs.get('state', 'all'):  # ['state']:
                 state[2] = True
                 break
         context['states'] = states
-        context['state'] = self.kwargs['state']
+        context['state'] = self.kwargs.get('state', 'all')  # ['state']
         return context
 
 

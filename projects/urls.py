@@ -10,8 +10,6 @@ urlpatterns = [
     path('detail/<int:pk>', views.ProjectDetailView.as_view(), name='project_detail'),
     path('update/<int:pk>', views.ProjectUpdateView.as_view(), name='project_update'),
 
-    path('s', views.ProjectSearchView.as_view(), name='project_s'),
-
     path('ajax/load_projects', views.load_projects, name='load_project'),
 
     path('schedules', views.ScheduleListView.as_view(), name='schedule_list'),
