@@ -1,6 +1,6 @@
 from django.db import models
 import django.utils.timezone as timezone
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
 
@@ -19,7 +19,8 @@ class Project(models.Model):
         (u'实施', u'实施'),
         (u'验收完成', u'验收完成'),
         (u'完结', u'完结'),
-        (u'暂停', u'暂停')
+        (u'暂停', u'暂停'),
+        (u'其他', u'其他')
     )
 
     name = models.CharField(max_length=128)
@@ -41,7 +42,8 @@ class Project(models.Model):
     parent_project = models.ForeignKey(
         'Project', on_delete=models.SET_NULL, related_name='child_projects', blank=True, null=True)
 
-    department = models.ForeignKey("accounts.Department", on_delete=models.CASCADE,related_name='projects',verbose_name="部门")
+    department = models.ForeignKey(
+        "accounts.Structure", on_delete=models.CASCADE, related_name='projects', verbose_name="部门")
 
     def __str__(self):
         return self.name
@@ -52,6 +54,9 @@ class Schedule(models.Model):
     TASK_TYPE_CHOICES = (
         (u'进度', u'进度'),
         (u'付款', u'付款'),
+        (u'会议', u'会议'),
+        (u'流程', u'流程'),
+        (u'发文', u'发文'),
         (u'招采审核', u'招采审核'),
         (u'方案评审会', u'方案评审会'),
         (u'其他', u'其他'),
@@ -61,12 +66,17 @@ class Schedule(models.Model):
     cdate = models.DateTimeField(default=timezone.now)
     lcdate = models.DateTimeField(auto_now=True)
 
-    task_type = models.CharField(max_length=20, choices=TASK_TYPE_CHOICES, default='其他')
+    task_type = models.CharField(
+        max_length=20, choices=TASK_TYPE_CHOICES, default='其他')
 
     transactor = models.CharField(max_length=32)
     content = models.TextField(blank=True)
 
     remark = models.CharField(max_length=256, blank=True)
+
+    isfin = models.BooleanField(default=False, verbose_name=u'是否完成')
+    progress = models.IntegerField(default=0, validators=[MaxValueValidator(
+        100), MinValueValidator(0)], verbose_name=u'进度占比')
 
     cuser = models.ForeignKey(
         'accounts.OAUser', on_delete=models.SET_NULL, related_name='create_schedules', blank=True, null=True)
@@ -75,8 +85,9 @@ class Schedule(models.Model):
 
     project = models.ForeignKey(
         'Project', on_delete=models.CASCADE, related_name='schedules')
-    
-    department = models.ForeignKey("accounts.Department",on_delete=models.CASCADE,verbose_name="部门")
+
+    department = models.ForeignKey(
+        "accounts.Structure", on_delete=models.CASCADE, verbose_name="部门")
 
     def __str__(self):
         return self.name

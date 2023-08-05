@@ -8,8 +8,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from projects.forms import ProjectForm, ScheduleForm
 from django.http import Http404
 from .models import Project, Schedule
-from accounts.models import Department, OAUser
+from accounts.models import Structure, OAUser
 from django.db.models import Q
+from django.db.models import Sum
 import json
 from django.core import serializers
 import csv
@@ -89,11 +90,17 @@ class ProjectListView(LoginRequiredMixin, ListView):
                                   'state': 'fin'}), False, '已完成'],
                   ['unfin', reverse('project_list', kwargs={'state': 'unfin'}), False, '未完成']]
         for state in states:
-            if state[0] == self.kwargs.get('state', 'all'):  # ['state']:
+            if state[0] == self.kwargs.get('state', 'all'):
                 state[2] = True
                 break
+        progresses = {}
+        for project in context['project_list']:
+            aa = project.schedules.filter(
+                isfin=True).aggregate(Sum('progress'))
+            progresses[project.id] = aa['progress__sum'] or 0
+        context['progresses'] = progresses
         context['states'] = states
-        context['state'] = self.kwargs.get('state', 'all')  # ['state']
+        context['state'] = self.kwargs.get('state', 'all')
         return context
 
 

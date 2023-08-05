@@ -7,7 +7,7 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from accounts.models import Department, OAUser
+from accounts.models import Structure, OAUser
 from projects.models import Project
 from .models import Budget, Pay, BudgetYear
 from .forms import BudgetForm, PayForm

@@ -1,4 +1,5 @@
 {% extends "projects/project_base.html" %}
+{% load cost_tag %}
 
 {% block content %}
 <div class="col-md-6">
@@ -28,6 +29,7 @@
                 <th scope="col">项目名</th>
                 <th scope="col">主体</th>
                 <th scope="col">状态</th>
+                <th scope="col">进度</th>
                 <th scope="col">经办人</th>
                 <th scope="col">金额</th>
                 <th scope="col">近期活动时间</th>
@@ -41,6 +43,7 @@
                 <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
                 <td>{{ project.businessentity }}</td>
                 <td>{{ project.task_state }}</td>
+                <td>{{ progresses|return_item:project.id }}</td>
                 <td>{{ project.transactor }}</td>
                 <td>{{ project.amount }}</td>
                 <td>{{ project.lcdate }}</td>

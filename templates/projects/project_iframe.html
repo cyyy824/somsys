@@ -1,0 +1,225 @@
+<html>
+     <head>
+         <style>
+            body{font-size:9pt}
+            td{font-size:9pt}
+        </style>
+         <script  language ="javascript">
+            var oldBackGroundColor = "";
+            var bClick = false;
+            
+            function onclickRow(objid,objName)
+            {
+                window.parent.document.getElementById("tbxCategory").value = objName+"["+objid+"]";
+                window.parent.window.document.getElementById("frmOpenWin").style.display = "none";
+            }
+            
+            function tr_onmouseover(event)
+            {
+                bClick = true;
+                var objTR = null;
+                
+                if(event == null)
+                {
+                    event = window.event; // For IE
+                }
+                var objTag = event.srcElement? event.srcElement : event.target;//For FierFox
+                
+                if(objTag.tagName == "TD")
+                {
+                    if(document.all)
+                    {
+                        if(objTag.parentNode.tagName == "TR")
+                        {
+                            oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                            objTag.parentNode.style.backgroundColor = "#99ff00";
+                        }
+                        else if(objTag.parentNode.parentNode.tagName == "TR")
+                        {
+                            oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                            objTag.parentNode.parentNode.style.backgroundColor = "#99ff00";
+                        }
+                    }
+                    else
+                    {
+                        if(objTag.parentNode.tagName == "TR")
+                        {
+                            oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                            objTag.parentNode.style.backgroundColor = "#99ff00";
+                        }
+                        else if(objTag.parentNode.parentNode.tagName == "TR")
+                        {
+                            oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                            objTag.parentNode.parentNode.style.backgroundColor = "#99ff00";
+                        }
+                    }    
+                }
+                else
+                {
+                    if(objTag.tagName == "TR")
+                    {
+                        oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                        objTag.style.backgroundColor="#99ff00";
+                    }
+                    else if(objTag.parentNode.tagName == "TR")
+                    {
+                        oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                        objTag.parentNode.style.backgroundColor="#99ff00";
+                    }
+                    else if(objTag.parentNode.parentNode.tagName == "TR")
+                    {
+                        oldBackGroundColor = objTag.parentNode.style.backgroundColor;
+                        objTag.parentNode.parentNode.style.backgroundColor="#99ff00";
+                    }
+                }
+            }
+            function tr_onmouseout(event)
+            {
+                var objTR = null;
+                if(event == null)
+                {
+                    event = window.event; // For IE
+                }
+                var objTag = event.srcElement? event.srcElement : event.target;//For FierFox
+                
+                if(objTag.tagName == "TD")
+                {
+                    if(objTag.parentNode.tagName == "TR" && bClick)
+                    {
+                        objTag.parentNode.style.backgroundColor = oldBackGroundColor;
+                        oldBackGroundColor = "";
+                    }
+                    else if(objTag.parentNode.parentNode.tagName == "TR" && bClick)
+                    {
+                        objTag.parentNode.parentNode.style.backgroundColor = oldBackGroundColor;
+                        oldBackGroundColor = "";
+                    }
+                }
+                else
+                {
+                    if(objTag.tagName == "TR" && bClick)
+                    {
+                        objTag.style.backgroundColor = oldBackGroundColor;
+                        oldBackGroundColor = "";
+                    }
+                    else if(objTag.parentNode.tagName == "TR" && bClick)
+                    {
+                        objTag.parentNode.style.backgroundColor=oldBackGroundColor;
+                        oldBackGroundColor = "";
+                    }
+                    else if(objTag.parentNode.parentNode.tagName == "TR" && bClick)
+                    {
+                        objTag.parentNode.parentNode.style.backgroundColor=oldBackGroundColor;
+                        oldBackGroundColor = "";
+                    }
+                }
+                bClick = false;
+            }
+            
+            function InitRowBackColor(objTable)
+            {
+                for(var i = 0; i <objTable.rows.length; i ++)
+                {
+                    if(document.all)
+                    {
+                        objTable.rows[i].style.backgroundColor = "";
+                    }
+                    else
+                    {
+                        objTable.rows[i].style.backgroundColor = "";
+                    }
+                }
+            }
+        </script>
+    </head>
+     <body  MS_POSITIONING ="GridLayout"  leftmargin ="0"  topmargin ="0">
+         <table  width ="100%"  border ="0"  align ="center"  cellpadding ="0"  cellspacing ="1"  bordercolor ="#CCCCCC"
+            bgcolor ="#999999"  ID ="Table4">
+             <tr>
+                 <td  bgcolor ="#FFFFFF"> 行业名称： <input  type ="text"  id ="tbxname"><input  type ="button"  id ="btnOk"  value ="查询"></ td>
+            </tr>
+             <tr>
+                 <td  height ="58"  bgcolor ="#FFFFFF">
+                     <table  width ="99%"  border ="0"  align ="center"  cellpadding ="0"  cellspacing ="1"  bordercolor ="#006699"
+                        name ="tbData"  id ="tbData">
+                         <tr  bgcolor ="#A9D0FC">
+                             <td  align ="center"><B> 项目</B></ td>
+                             <td  align ="center"><b> 行业说明</b></ td>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('001','农业');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25"> 001</TD>
+                             <TD  align ="center"> 农业</TD>
+                             <TD> 农业说明</TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('002','谷物及其他作物的种植');"
+                            onmouseover ="tr_onmouseover()"  onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 002</TD>
+                             <TD  align ="center"> 谷物及其他作物的种植</TD>
+                             <TD> 谷物及其他作物的种植说明</TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('003','谷物的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 003</TD>
+                             <TD  align ="center"> 谷物的种植</TD>
+                             <TD> 谷物的种植说明</TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('004','薯类的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 004</TD>
+                             <TD  align ="center"> 薯类的种植</TD>
+                             <TD> 薯类的种植说明</TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('005','油料的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 005</TD>
+                             <TD  align ="center"> 油料的种植</TD>
+                             <TD> 油料的种植说明</TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('006','豆类的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 006</TD>
+                             <TD  align ="center"> 豆类的种植</TD>
+                             <TD></ TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('007','棉花的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 007</TD>
+                             <TD  align ="center"> 棉花的种植</TD>
+                             <TD></ TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('008','麻类的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 008</TD>
+                             <TD  align ="center"> 麻类的种植</TD>
+                             <TD></ TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('009','糖料的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 009</TD>
+                             <TD  align ="center"> 糖料的种植</TD>
+                             <TD></ TD>
+                        </tr>
+                         <tr  style ="cursor:hand"  bgcolor ="#E9F3FE"  onclick ="onclickRow('010','烟草的种植');"  onmouseover ="tr_onmouseover()"
+                            onmouseout ="tr_onmouseout()">
+                             <TD  align ="center"  height ="25px"> 010</TD>
+                             <TD  align ="center"> 烟草的种植</TD>
+                             <TD></ TD>
+                        </tr>
+                    </table>
+                     <div  style ="text-align:right">
+                        共500行,50页
+                         <SELECT  name ="page_size"  ID ="Select2">
+                             <OPTION  value ="10"  selected> 10</OPTION>
+                             <OPTION  value ="20"> 20</OPTION>
+                             <OPTION  value ="30"> 30</OPTION>
+                             <OPTION  value ="50"> 50</OPTION>
+                             <OPTION  value ="100"> 100</OPTION>
+                        </SELECT> 条记录  <A  style ="color:blue"> 下一页</A>   <A  style ="color:blue"> 最后页</A>  转到 <INPUT  style ="width:36px"  value ="1"  name ="page"  ID ="Text1"> 页
+                         <INPUT  class ="btn"  type ="button"  value ="go"  ID ="Button1"  NAME ="Button1">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

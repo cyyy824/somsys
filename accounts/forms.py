@@ -3,7 +3,9 @@ from django import forms
 from django.forms import widgets
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.forms import ModelForm
-from .models import OAUser, Department
+from .models import OAUser, Structure
+from django.contrib.auth import get_user_model
+from django.conf import settings
 
 
 class LoginForm(AuthenticationForm):
@@ -17,7 +19,7 @@ class LoginForm(AuthenticationForm):
 
 class RegisterForm(UserCreationForm):
     realname = forms.CharField(max_length=30, required=False)
-    department = forms.ModelChoiceField(queryset=Department.objects.all())
+    department = forms.ModelChoiceField(queryset=Structure.objects.all())
 
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)

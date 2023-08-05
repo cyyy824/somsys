@@ -34,7 +34,8 @@ class Budget(models.Model):
     year = models.ForeignKey('BudgetYear', on_delete=models.SET_NULL,
                              related_name='budgets', blank=True, null=True)
 
-    department = models.ForeignKey("accounts.Department", on_delete=models.CASCADE,related_name='budgets',verbose_name="部门")
+    department = models.ForeignKey(
+        "accounts.Structure", on_delete=models.CASCADE, related_name='budgets', verbose_name="部门")
 
     def __str__(self):
         return self.name
@@ -66,7 +67,8 @@ class Pay(models.Model):
     budget = models.ForeignKey(
         'Budget', on_delete=models.SET_NULL, related_name='pays', blank=True, null=True)
 
-    department = models.ForeignKey("accounts.Department", on_delete=models.CASCADE,related_name='pays',verbose_name="部门")
+    department = models.ForeignKey(
+        "accounts.Structure", on_delete=models.CASCADE, related_name='pays', verbose_name="部门")
 
     def __str__(self):
         return self.name

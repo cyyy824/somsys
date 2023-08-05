@@ -1,3 +1,4 @@
+
 from django.db import models
 from django import forms
 from django.forms import ModelForm
@@ -49,12 +50,16 @@ class ScheduleForm(ModelForm):
         self.fields['task_type'].widget.attrs.update({"class": "form-control"})
         self.fields['transactor'].widget.attrs.update(
             {"class": "form-control"})
+        self.fields['isfin'].widget.attrs.update(
+            {"class": "form-control"})
+        self.fields['progress'].widget.attrs.update(
+            {"class": "form-control"})
         self.fields['content'].widget.attrs.update({"class": "form-control"})
         self.fields['remark'].widget.attrs.update({"class": "form-control"})
 
     class Meta:
         model = Schedule
-        fields = ['project', 'name', 'task_type', 'transactor',
+        fields = ['project', 'name', 'task_type', 'transactor', 'isfin', 'progress',
                   'content', 'remark', 'lcuser']
 
         labels = {

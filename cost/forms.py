@@ -4,7 +4,7 @@ from django import forms
 from django.forms import widgets, ModelForm, ModelChoiceField, HiddenInput
 from django.forms import ModelForm
 from .models import Budget, BudgetYear, Pay
-from accounts.models import OAUser, Department
+from accounts.models import OAUser, Structure
 from projects.models import Project
 
 
