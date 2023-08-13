@@ -30,6 +30,34 @@ def load_projects(request):
     return HttpResponse(json.dumps(data))
 
 
+class ProjectSearchView(LoginRequiredMixin, ListView):
+    template_name = 'projects/project_search.html'
+    model = Project
+    context_object_name = 'project_list'
+
+    def get_queryset(self):
+        user = self.request.user
+        keychar = self.request.GET.get('name', '')
+        if keychar != None:
+            new_context = Project.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__contains=keychar)
+            ).order_by('-cdate')
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        progresses = {}
+        for project in context['project_list']:
+            aa = project.schedules.filter(
+                isfin=True).aggregate(Sum('progress'))
+            progresses[project.id] = aa['progress__sum'] or 0
+        context['progresses'] = progresses
+        return context
+
+
 class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_list.html'
     model = Project
@@ -56,21 +84,17 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
     def get_queryset(self):
         user = self.request.user
         state = self.kwargs.get('state', 'all')
+        m = self.request.GET.get('m', '0')
+        ismain = 0
+        try:
+            ismain = int(m)
+        except:
+            pass
 
-        if self.request.method == 'POST':
-            name = self.request.POST.get('name', '')
-            new_context = Project.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=name) |
-                Q(transactor__contains=name)
-            ).order_by('-cdate')
-            return new_context
+        new_context = None
 
         if state == 'fin':
             new_context = Project.objects.filter(
@@ -81,26 +105,32 @@ class ProjectListView(LoginRequiredMixin, ListView):
         else:
             new_context = Project.objects.filter(
                 department=user.department).order_by('-cdate')
+        if ismain > 0:
+            new_context = new_context.filter(parent_project__isnull=True)
         return new_context
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        states = [['all', reverse('project_list', kwargs={'state': 'all'}), False, '全部'],
-                  ['fin', reverse('project_list', kwargs={
-                                  'state': 'fin'}), False, '已完成'],
-                  ['unfin', reverse('project_list', kwargs={'state': 'unfin'}), False, '未完成']]
-        for state in states:
-            if state[0] == self.kwargs.get('state', 'all'):
-                state[2] = True
-                break
+
         progresses = {}
+        isexpired = False
         for project in context['project_list']:
             aa = project.schedules.filter(
                 isfin=True).aggregate(Sum('progress'))
             progresses[project.id] = aa['progress__sum'] or 0
+            if isexpired:
+                continue
+            for schedule in project.schedules.all():
+                if schedule.is_expired():
+                    isexpired = True
+                    break
+
         context['progresses'] = progresses
-        context['states'] = states
+
         context['state'] = self.kwargs.get('state', 'all')
+        context['ismain'] = self.request.GET.get('m', '0')
+        context['isexpired'] = isexpired
+
         return context
 
 
@@ -143,6 +173,27 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
     model = Project
     context_object_name = 'project'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        project = context['project']
+        progress = project.schedules.filter(
+            isfin=True).aggregate(Sum('progress'))
+        context['progress'] = progress
+
+        cprogresses = {}
+        for cproject in project.child_projects.all():
+            aa = cproject.schedules.filter(
+                isfin=True).aggregate(Sum('progress'))
+            cprogresses[cproject.id] = aa['progress__sum'] or 0
+        context['cprogresses'] = cprogresses
+
+        sexpireds = {}
+        for schedule in project.schedules.all():
+            sexpireds[schedule.id] = schedule.is_expired()
+        context['sexpireds'] = sexpireds
+        return context
+
 
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'projects/project_update.html'
@@ -164,11 +215,30 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
         return kwargs
 
 
+class ScheduleSearchView(LoginRequiredMixin, ListView):
+    template_name = 'projects/schedule_search.html'
+    model = Schedule
+    context_object_name = 'schedule_list'
+    # ordering = ['-lcdate']
+
+    def get_queryset(self):
+        user = self.request.user
+
+        keychar = self.request.GET.get('name', '')
+        if keychar != None:
+            new_context = Schedule.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__contains=keychar)
+            ).order_by('-lcdate')
+        return new_context
+
+
 class ScheduleListView(LoginRequiredMixin, ListView):
     template_name = 'projects/schedule_list.html'
     model = Schedule
     context_object_name = 'schedule_list'
-    #ordering = ['-lcdate']
+    # ordering = ['-lcdate']
 
     page_type = ''
     paginate_by = 30
@@ -198,6 +268,15 @@ class ScheduleListView(LoginRequiredMixin, ListView):
             new_context = Schedule.objects.filter(
                 department=user.department).order_by('-lcdate')
         return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        sexpireds = {}
+        for schedule in context['schedule_list']:
+            sexpireds[schedule.id] = schedule.is_expired()
+        context['sexpireds'] = sexpireds
+        return context
 
 
 class ScheduleCreateView(LoginRequiredMixin, CreateView):
@@ -237,6 +316,13 @@ class ScheduleDetailView(LoginRequiredMixin, DetailView):
     template_name = 'projects/schedule_detail.html'
     model = Schedule
     context_object_name = 'schedule'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        schedule = context['schedule']
+        sexpired = schedule.is_expired()
+        context['sexpired'] = sexpired
+        return context
 
 
 class ScheduleUpdateView(LoginRequiredMixin, UpdateView):

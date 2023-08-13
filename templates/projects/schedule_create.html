@@ -3,11 +3,28 @@
 {% block content %}
 
 <div class="m-5">
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input class="btn btn-primary m-1" type="submit" value="新增">
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-primary m-1" type="submit" value="新增">
 
-</form>
+    </form>
 </div>
+
+
+
+{% endblock %}
+
+{% block addjs %}
+<link rel="stylesheet" href="/static/css/jquery.datetimepicker.min.css" />
+<script src="/static/js/jquery.datetimepicker.full.min.js"></script>
+<script>
+    var $j = jQuery.noConflict();
+    $j(function () {
+        $j('#id_deadline').datetimepicker({
+            format: 'Y-m-d H:i'
+        });
+        $j.datetimepicker.setLocale('zh');
+    });
+</script>
 {% endblock %}

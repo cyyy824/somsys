@@ -1,16 +1,20 @@
 {% extends "projects/schedule_base.html" %}
 
 {% block content %}
-<h1>{{ schedule.project }}</h1>
+<h1>项目：{{ schedule.project }}</h1>
 <div class="m-5">
 
-<h2>{{ schedule.name }}</h2>
-<p>类型：{{ schedule.task_type }}</p>
-<p>经办人：{{ schedule.transactor }}</p>
-<p>创建日期：{{ schedule.cdate }}</p>
-<p>内容：{{ schedule.content }}</p>
-<p>备注：{{ schedule.remark }}</p>
-<p><a href="{% url 'schedule_update' schedule.id%}">编辑</a></p>
+    <h2>{{ schedule.name }}</h2>
+    <p>类型：{{ schedule.task_type }}</p>
+    <p>经办人：{{ schedule.transactor }}</p>
+    <p>创建日期：{{ schedule.cdate }}</p>
+    <p>关键节点：<input type="checkbox" onclick="return false" {% if schedule.iskey %}checked{% endif %} /></p>
+    <p>是否完成：<input type="checkbox" onclick="return false" {% if schedule.isfin %}checked{% endif %} /></p>
+    <p>截止时间：{{ schedule.deadline }}</p>
+    <p>超期否：{% if sexpired %}超期{% else %}未超期{% endif %}</p>
+    <p>内容：{{ schedule.content }}</p>
+    <p>备注：{{ schedule.remark }}</p>
+    <p><a href="{% url 'schedule_update' schedule.id%}">编辑</a></p>
 </div>
 
 {% endblock %}

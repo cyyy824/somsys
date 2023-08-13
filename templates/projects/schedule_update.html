@@ -10,3 +10,17 @@
     </form>
 </div>
 {% endblock %}
+
+{% block addjs %}
+<link rel="stylesheet" href="/static/css/jquery.datetimepicker.min.css" />
+<script src="/static/js/jquery.datetimepicker.full.min.js"></script>
+<script>
+    var $j = jQuery.noConflict();
+    $j(function () {
+        $j('#id_deadline').datetimepicker({
+            format: 'Y-m-d H:i'
+        });
+        $j.datetimepicker.setLocale('zh');
+    });
+</script>
+{% endblock %}

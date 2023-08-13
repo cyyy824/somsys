@@ -1,5 +1,5 @@
 {% extends "projects/project_base.html" %}
-
+{% load cost_tag %}
 {% block content %}
 
 <div class="m-5">
@@ -12,13 +12,26 @@
             无
             {% endif %}
         </p>
-        <p>单位主体：{{ project.businessentity }}</p>
-        <p>项目状态：{{ project.task_state }}</p>
-        <p>经办人：{{ project.transactor }}</p>
-        <p>内容：{{ project.content }}</p>
-        <p>金额：{{ project.amount }}</p>
-        <p>创建日期：{{ project.cdate }}</p>
-        <p>修改日期：{{ project.lcdate }}</p>
+        <table border="1">
+            <tr>
+                <td>经办人：{{ project.transactor }}</td>
+                <td>单位主体：{{ project.businessentity }}</td>
+            </tr>
+            <tr>
+                <td>创建日期：{{ project.cdate }}</td>
+                <td>修改日期：{{ project.lcdate }}</td>
+            </tr>
+            <tr>
+                <td>金额：{{ project.amount }}</td>
+                <td>进度：<progress max="100" value="{{ progress }}" titile="{{ progress }}%"></progress></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <p>内容：</p>
+                    <p>{{ project.content }}</p>
+                </td>
+            </tr>
+        </table>
         <p><a href="{% url 'project_update' project.id%}">编辑</a></p>
     </div>
 
@@ -31,8 +44,11 @@
             <thead>
                 <tr>
                     <th scope="col">项目名</th>
-                    <th scope="col">日期</th>
+                    <th scope="col">活动日期</th>
                     <th scope="col">经办人</th>
+                    <th scope="col">状态</th>
+                    <th scope="col">金额</th>
+                    <th scope="col">进度</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
@@ -42,6 +58,10 @@
                     <td><a href="{% url 'project_detail' cproject.id%}">{{ cproject.name }}</a></td>
                     <td>{{ cproject.lcdate| date:"Y-m-d" }}</td>
                     <td>{{ cproject.transactor }}</td>
+                    <td>{{ cproject.task_state }}</td>
+                    <td>{{ cproject.amount }}</td>
+                    <td><progress max="100" value="{{ cprogresses|return_item:cproject.id }}"
+                            titile="{{ cprogresses|return_item:cproject.id }}%"></progress></td>
                     <td><a href="{% url 'project_update' cproject.id%}">修改</a></td>
                 </tr>
                 {% empty %}
@@ -96,15 +116,23 @@
                     <th scope="col">事件</th>
                     <th scope="col">日期</th>
                     <th scope="col">经办人</th>
+                    <th scope="col">关键节点</th>
+                    <th scope="col">是否完成</th>
+                    <th scope="col">进度占比</th>
+                    <th scope="col">超期否</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for schedule in project.schedules.all|dictsortreversed:"lcdate" %}
-                <tr>
+                <tr {% if sexpireds|return_item:schedule.id %}style="color:red" {% endif %}>
                     <td><a href="{% url 'schedule_detail' schedule.id%}">{{ schedule.name }}</a></td>
                     <td>{{ schedule.lcdate| date:"Y-m-d" }}</td>
                     <td>{{ schedule.transactor }}</td>
+                    <td><input type="checkbox" onclick="return false" {% if schedule.iskey %}checked{% endif %} /></td>
+                    <td><input type="checkbox" onclick="return false" {% if schedule.isfin %}checked{% endif %} /></td>
+                    <td>{{ schedule.progress }}</td>
+                    <td>{% if sexpireds|return_item:schedule.id %}超期{% else %}未超期{% endif %}</td>
                     <td><a href="{% url 'schedule_update' schedule.id%}">修改</a></td>
                 </tr>
                 {% empty %}

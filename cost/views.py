@@ -123,6 +123,24 @@ class BudgetDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'budget'
 
 
+class PaySearchView(LoginRequiredMixin, ListView):
+    template_name = 'cost/pay_search.html'
+    model = Pay
+    context_object_name = 'pay_list'
+
+    def get_queryset(self):
+        user = self.request.user
+        new_context = None
+        keychar = self.request.GET.get('name', '')
+        if keychar != None:
+            new_context = Pay.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__contains=keychar)
+            ).order_by('-paydate')
+        return new_context
+
+
 class PayListView(LoginRequiredMixin, ListView):
     template_name = 'cost/pay_list.html'
     model = Pay
@@ -131,8 +149,8 @@ class PayListView(LoginRequiredMixin, ListView):
     page_type = ''
     paginate_by = 20
     page_kwarg = 'page'
-    #ordering = ['-paydate']
-    #queryset = Pay.objects.order_by('-paydate')
+    # ordering = ['-paydate']
+    # queryset = Pay.objects.order_by('-paydate')
 
     @property
     def page_number(self):
@@ -141,22 +159,10 @@ class PayListView(LoginRequiredMixin, ListView):
             page_kwarg) or self.request.GET.get(page_kwarg) or 1
         return page
 
-    def post(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
     def get_queryset(self):
         user = self.request.user
-        new_context = None
-        if self.request.method == 'POST':
-            name = self.request.POST.get('name', '')
-            new_context = Pay.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=name) |
-                Q(transactor__contains=name)
-            ).order_by('-paydate')
-        else:
-            new_context = Pay.objects.filter(
-                department=user.department).order_by('-paydate')
+        new_context = Pay.objects.filter(
+            department=user.department).order_by('-paydate')
         return new_context
 
 

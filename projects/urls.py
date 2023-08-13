@@ -9,6 +9,7 @@ urlpatterns = [
          name='project_create'),
     path('detail/<int:pk>', views.ProjectDetailView.as_view(), name='project_detail'),
     path('update/<int:pk>', views.ProjectUpdateView.as_view(), name='project_update'),
+    path('search', views.ProjectSearchView.as_view(), name='project_search'),
 
     path('ajax/load_projects', views.load_projects, name='load_project'),
 

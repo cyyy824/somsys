@@ -7,18 +7,15 @@
         <tr>
             <td>
                 <select class="form-control" onchange="self.location.href=options[selectedIndex].value">
-		    <option value="{% url 'project_list' %}all?m={{ ismain }}" {% if state == "all" %} selected {% endif %}>全部</option>
-                    <option value="{% url 'project_list' %}fin?m={{ ismain }}" {% if state == "fin" %}selected{% endif %}>已完成</option>
-                    <option value="{% url 'project_list' %}unfin?m={{ ismain }}" {% if state == "unfin" %}selected{% endif %}>未完成
-                    </option>
+                    {% for state in states %}
+                    {% if state.2 == True %}
+                    <option value="{{ state.1 }}" selected>{{ state.3 }}</option>
+                    {% else %}
+                    <option value="{{ state.1 }}">{{ state.3 }}</option>
+                    {% endif %}
+                    {% endfor %}
                 </select>
             </td>
-	    <td>
-                <select class="form-control" onchange="self.location.href=options[selectedIndex].value">
-		    <option value="{% url 'project_list' %}{{ state }}?m=0" {% if ismain == '0' %} selected {% endif %}>所有项目</option>
-		    <option value="{% url 'project_list' %}{{ state }}?m=1" {% if ismain == '1' %} selected {% endif %}>主要项目</option>
-		</select>
-	    </td>
             <td>
                 <a class="btn btn-primary btn-lg m-1" href="{% url 'project_create' %}" role="button">添加</a>
             </td>
@@ -37,13 +34,12 @@
                 <th scope="col">金额</th>
                 <th scope="col">近期活动时间</th>
                 <th scope="col">父项目</th>
-                <th scope="col">超期</th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
             {% for project in project_list %}
-	    <tr {% if isexpired %}style="color:red"{% endif %}>
+            <tr>
                 <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
                 <td>{{ project.businessentity }}</td>
                 <td>{{ project.task_state }}</td>
@@ -59,9 +55,6 @@
                     无
                     {% endif %}
                 </td>
-		<td>
-		    {% if isexpired %}超期{% else %}未超期{% endif %}
-		</td>
                 <td><a href="{% url 'project_update' project.id%}">编辑</a></td>
             </tr>
             {% endfor %}
