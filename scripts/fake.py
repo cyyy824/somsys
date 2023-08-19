@@ -7,6 +7,7 @@ import datetime
 import django
 import faker
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password
 
 back = os.path.dirname
 BASE_DIR = back(back(os.path.abspath(__file__)))
@@ -92,4 +93,9 @@ if __name__ == '__main__':
                                            transactor=project.transactor,
                                            department=project.department,
                                            content=fake.text(),
-                                           project=project)
+                                           project=project,
+                                           iskey=False,
+                                           isfin=False,
+                                           progress=0,
+                                           deadline=fake.date_time_between(
+                                     start_date='-1y', end_date="-30d"))

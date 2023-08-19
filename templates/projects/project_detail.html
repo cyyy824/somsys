@@ -1,5 +1,6 @@
 {% extends "projects/project_base.html" %}
-{% load cost_tag %}
+{% load getitem_tag %}
+{% load static %}
 {% block content %}
 
 <div class="m-5">
@@ -60,8 +61,8 @@
                     <td>{{ cproject.transactor }}</td>
                     <td>{{ cproject.task_state }}</td>
                     <td>{{ cproject.amount }}</td>
-                    <td><progress max="100" value="{{ cprogresses|return_item:cproject.id }}"
-                            titile="{{ cprogresses|return_item:cproject.id }}%"></progress></td>
+                    <td><progress class="progress-bar bg-success" max="100" value="{{ cprogresses|get_item:cproject.id }}"
+                            titile="{{ cprogresses|get_item:cproject.id }}%"></progress></td>
                     <td><a href="{% url 'project_update' cproject.id%}">修改</a></td>
                 </tr>
                 {% empty %}
@@ -125,14 +126,15 @@
             </thead>
             <tbody>
                 {% for schedule in project.schedules.all|dictsortreversed:"lcdate" %}
-                <tr {% if sexpireds|return_item:schedule.id %}style="color:red" {% endif %}>
+                <tr {% if sexpireds|get_item:schedule.id %}style="color:red" {% endif %}>
                     <td><a href="{% url 'schedule_detail' schedule.id%}">{{ schedule.name }}</a></td>
                     <td>{{ schedule.lcdate| date:"Y-m-d" }}</td>
                     <td>{{ schedule.transactor }}</td>
                     <td><input type="checkbox" onclick="return false" {% if schedule.iskey %}checked{% endif %} /></td>
                     <td><input type="checkbox" onclick="return false" {% if schedule.isfin %}checked{% endif %} /></td>
                     <td>{{ schedule.progress }}</td>
-                    <td>{% if sexpireds|return_item:schedule.id %}超期{% else %}未超期{% endif %}</td>
+                    <td>{% if sexpireds|get_item:schedule.id %}<span class="badge badge-danger">超期</span>
+                        {% else %}<span class="badge badge-success">未超期</span>{% endif %}</td>
                     <td><a href="{% url 'schedule_update' schedule.id%}">修改</a></td>
                 </tr>
                 {% empty %}

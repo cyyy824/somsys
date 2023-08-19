@@ -1,5 +1,5 @@
 {% extends "projects/project_base.html" %}
-
+{% load static %}
 {% block content %}
 
 <div class="m-5">
@@ -14,13 +14,13 @@
 {% block addjs %}
 
 
-<link href="/static/css/select2.min.css" rel="stylesheet" />
-<script src="/static/js/select2.min.js"></script>
+<link href="{% static 'css/select2.min.css' %}" rel="stylesheet" />
+<script src="{% static 'js/select2.min.js' %}"></script>
 
 <script>
     $('#id_parent_project').select2({
         ajax: {
-            url: '/ajax/load_projects',
+            url: '{% url 'load_project' %}',
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -41,6 +41,7 @@
             },
         },
         placeholder: '搜索项目',
+        allowClear : true, // 允许清空
         minimumInputLength: 1,
     });
 

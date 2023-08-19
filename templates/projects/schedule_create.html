@@ -1,5 +1,5 @@
 {% extends "projects/schedule_base.html" %}
-
+{% load static %}
 {% block content %}
 
 <div class="m-5">
@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block addjs %}
-<link rel="stylesheet" href="/static/css/jquery.datetimepicker.min.css" />
-<script src="/static/js/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.min.css' %}" />
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
 <script>
     var $j = jQuery.noConflict();
     $j(function () {

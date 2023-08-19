@@ -1,6 +1,6 @@
 {% extends "projects/project_base.html" %}
-{% load cost_tag %}
-
+{% load getitem_tag %}
+{% load static %}
 {% block content %}
 <div class="col-md-6">
     <h1>项目搜索</h1>
@@ -26,7 +26,7 @@
                 <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
                 <td>{{ project.businessentity }}</td>
                 <td>{{ project.task_state }}</td>
-                <td>{{ progresses|return_item:project.id }}</td>
+                <td>{{ progresses|get_item:project.id }}</td>
                 <td>{{ project.transactor }}</td>
                 <td>{{ project.amount }}</td>
                 <td>{{ project.lcdate }}</td>

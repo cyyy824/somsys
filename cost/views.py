@@ -6,6 +6,7 @@ from django.views.generic import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from accounts.models import Structure, OAUser
 from projects.models import Project
@@ -139,6 +140,13 @@ class PaySearchView(LoginRequiredMixin, ListView):
                 Q(transactor__contains=keychar)
             ).order_by('-paydate')
         return new_context
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        keychar = self.request.GET.get('name', '')
+        context['keychar'] = keychar
+        return context
 
 
 class PayListView(LoginRequiredMixin, ListView):
@@ -221,7 +229,7 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
 
         return kwargs
 
-
+@login_required
 def export_pays(request):
     response = HttpResponse(content_type='text/csv')
     response.charset = 'utf-8-sig' if "Windows" in request.headers.get(
@@ -230,8 +238,19 @@ def export_pays(request):
 
     writer = csv.writer(response)
     user = request.user
-    pay_list = Pay.objects.filter(
-        department=user.department).order_by('-paydate')
+    keychar = request.GET.get('name', '')
+    pay_list = []
+    if( keychar == ''):
+        pay_list = Pay.objects.filter(
+            department=user.department).order_by('-paydate')
+    else:
+        pay_list = Pay.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__contains=keychar)
+            ).order_by('-paydate')
+    
+    writer.writerow(['payname','businessentity','date','author','amount','budget','project'])
     for pay in pay_list:
         writer.writerow([pay.name, pay.businessentity, str(
             pay.paydate), pay.transactor, pay.amount, pay.budget])

@@ -9,7 +9,7 @@
 
   <title>内部管理系统</title>
   <!-- Bootstrap core CSS -->
-  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
   <style>
     progress {
       width: 160px;
@@ -47,7 +47,7 @@
     }
   </style>
   <!-- Custom styles for this template -->
-  <link href="/static/css/jumbotron.css" rel="stylesheet">
+  <link href="{% static 'css/jumbotron.css' %}" rel="stylesheet">
 </head>
 
 <body>
@@ -139,8 +139,8 @@
     <p>&copy; Company 2022-2025</p>
   </footer>
 
-  <script src="/static/js/jquery-3.6.0.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
   {% block addjs %}
   {% endblock %}
 

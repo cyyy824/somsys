@@ -1,6 +1,6 @@
 from django.db import models
 import django.utils.timezone as timezone
-from django.utils.timezone import now
+#from django.utils.timezone import now
 from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
@@ -28,7 +28,7 @@ class Project(models.Model):
     businessentity = models.CharField(
         max_length=6, choices=BUSINESSENTITY_CHOICES, default='集团', verbose_name='主体')
     task_state = models.CharField(
-        max_length=20, choices=TASK_STATE_CHOICES, default='其他', verbose_name='状态')
+        max_length=20, choices=TASK_STATE_CHOICES,default='其他', verbose_name='状态')
     transactor = models.CharField(max_length=32, verbose_name='经办人')
     amount = models.DecimalField(
         max_digits=11, decimal_places=2, verbose_name='金额', default=0)
@@ -62,7 +62,7 @@ class Schedule(models.Model):
         (u'发文', u'发文'),
         (u'招采审核', u'招采审核'),
         (u'方案评审会', u'方案评审会'),
-        (u'其他', u'其他'),
+        (u'其他', u'其他')
     )
 
     name = models.CharField(max_length=128, verbose_name='事项')
@@ -70,7 +70,7 @@ class Schedule(models.Model):
     lcdate = models.DateTimeField(auto_now=True, verbose_name='修改日期')
 
     task_type = models.CharField(
-        max_length=20, choices=TASK_TYPE_CHOICES, default='其他', verbose_name='类型')
+        max_length=20, choices=TASK_TYPE_CHOICES, null=True, verbose_name='类型')
 
     transactor = models.CharField(max_length=32, verbose_name='经办人')
     content = models.TextField(blank=True, verbose_name='内容')
@@ -97,7 +97,7 @@ class Schedule(models.Model):
 
     def is_expired(self):
         if self.deadline:
-            if self.deadline > now:
+            if not self.isfin and timezone.now()>self.deadline:
                 return True
         return False
 

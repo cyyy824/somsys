@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
+from django.utils import timezone
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from projects.forms import ProjectForm, ScheduleForm
 from django.http import Http404
 from .models import Project, Schedule
@@ -16,7 +18,7 @@ from django.core import serializers
 import csv
 # Create your views here.
 
-
+@login_required
 def load_projects(request):
 
     kw = request.GET.get('q', '')
@@ -75,19 +77,22 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return page
 
     def get(self, request, *args, **kwargs):
-        state = self.kwargs.get('state')
+        state = self.kwargs.get('state','all')
 
         states = ['all', 'fin', 'unfin']
-        if state == None or state not in states:
+        if state not in states:
             state = 'all'
-            return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
+            kwargs['state'] = state
+        #main = self.kwargs.get('main','0')
+        kwargs['main'] = self.kwargs.get('main','0')
+        #    return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
 
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
         state = self.kwargs.get('state', 'all')
-        m = self.request.GET.get('m', '0')
+        m = self.kwargs.get('main', '0')
         ismain = 0
         try:
             ismain = int(m)
@@ -113,23 +118,24 @@ class ProjectListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         progresses = {}
-        isexpired = False
+        isexpireds = {}
+        #isexpired = False
         for project in context['project_list']:
             aa = project.schedules.filter(
                 isfin=True).aggregate(Sum('progress'))
             progresses[project.id] = aa['progress__sum'] or 0
-            if isexpired:
-                continue
+            isexpired = False
             for schedule in project.schedules.all():
                 if schedule.is_expired():
                     isexpired = True
                     break
+            isexpireds[project.id] = isexpired
 
         context['progresses'] = progresses
+        context['isexpireds'] = isexpireds
 
         context['state'] = self.kwargs.get('state', 'all')
-        context['ismain'] = self.request.GET.get('m', '0')
-        context['isexpired'] = isexpired
+        context['ismain'] = self.kwargs.get('main', '0')
 
         return context
 
@@ -177,8 +183,9 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = context['project']
-        progress = project.schedules.filter(
+        aa1 = project.schedules.filter(
             isfin=True).aggregate(Sum('progress'))
+        progress = aa1['progress__sum'] or 0
         context['progress'] = progress
 
         cprogresses = {}
@@ -232,6 +239,13 @@ class ScheduleSearchView(LoginRequiredMixin, ListView):
                 Q(transactor__contains=keychar)
             ).order_by('-lcdate')
         return new_context
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        keychar = self.request.GET.get('name', '')
+        context['keychar'] = keychar
+        return context
 
 
 class ScheduleListView(LoginRequiredMixin, ListView):
@@ -346,18 +360,28 @@ class ScheduleUpdateView(LoginRequiredMixin, UpdateView):
 
 # 导出csv格式
 
-
+@login_required
 def export_schedules(request):
     response = HttpResponse(content_type='text/csv')
-    print(request.headers.get('User-Agent'))
+
     response.charset = 'utf-8-sig' if "Windows" in request.headers.get(
         'User-Agent') else 'utf-8'
     response['Content-Disposition'] = 'attachment; filename="schedules.csv"'
 
     writer = csv.writer(response)
     user = request.user
-    schedule_list = Schedule.objects.filter(
-        department=user.department).order_by('-lcdate')
+    keychar = request.GET.get('name', '')
+    schedule_list=[]
+    if( keychar == ''):
+        schedule_list = Schedule.objects.filter(
+            department=user.department).order_by('-lcdate')
+    else:
+        schedule_list = Schedule.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__contains=keychar)
+            ).order_by('-lcdate')
+    writer.writerow(['task','project','type','author','date'])
     for schedule in schedule_list:
         writer.writerow([schedule.name, schedule.project.name,
                         schedule.task_type, schedule.transactor, str(schedule.lcdate)])
