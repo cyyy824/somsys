@@ -2,6 +2,9 @@
 {% load getitem_tag %}
 {% load static %}
 {% block content %}
+<h2 class="page-title">
+    项目列表
+  </h2>
 <div class="col-md-6">
     <table>
         <tr>
@@ -25,6 +28,9 @@
             <td>
                 <a class="btn btn-primary btn-lg m-1" href="{% url 'project_create' %}" role="button">添加</a>
             </td>
+            <td>
+                <a class="btn btn-primary btn-lg m-1" href="{% url 'export_projects' %}?state={{ state }}&main={{ main }}" role="button">导出</a>
+            </td>
         </tr>
     </table>
 </div>
@@ -46,7 +52,7 @@
         </thead>
         <tbody>
             {% for project in project_list %}
-            <tr {% if isexpireds|get_item:project.id %}style="color:red" {% endif %}>
+            <tr>
                 <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
                 <td>{{ project.businessentity }}</td>
                 <td>{{ project.task_state }}</td>
@@ -64,9 +70,9 @@
                 </td>
                 <td>
                     {% if isexpireds|get_item:project.id %}
-		            <span class="badge badge-danger">超期</span>
+		            <span class="badge bg-danger">超期</span>
                     {% else %}
-		            <span class="badge badge-success">未超期</span>
+		            <span class="badge bg-success">未超期</span>
 		            {% endif %}
                 </td>
                 <td><a href="{% url 'project_update' project.id%}">编辑</a></td>

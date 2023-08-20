@@ -1,6 +1,9 @@
 {% extends "projects/schedule_base.html" %}
 {% load static %}
 {% block content %}
+<h2 class="page-title">
+    任务搜索
+  </h2>
 <div class="col-md-4">
     <h1>事项搜索</h1>
     <a class="btn btn-primary btn-lg m-1" href="{% url 'export_schedules' %}?name={{ keychar }}" role="button">导出</a>

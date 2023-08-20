@@ -5,6 +5,10 @@
 
 {% block content %}
 
+<h2 class="page-title">
+    创建预算
+  </h2>
+
 <div class="m-5">
     <form action="{% url 'budget_create' %}" method="post">
         {% csrf_token %}

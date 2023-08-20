@@ -1,7 +1,9 @@
 {% extends "projects/project_base.html" %}
 {% load static %}
 {% block content %}
-
+<h2 class="page-title">
+    项目修改
+  </h2>
 <div class="m-5">
     <form action="{% url 'project_update' project.id %}" method="post">
         {% csrf_token %}

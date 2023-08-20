@@ -1,7 +1,9 @@
 {% extends "cost/budget_base.html" %}
 {% load static %}
 {% block content %}
-
+<h2 class="page-title">
+    预算修改
+  </h2>
 <div class="m-5">
     <form action="{% url 'budget_update' budget.id %}" method="post">
         {% csrf_token %}

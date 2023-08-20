@@ -387,3 +387,47 @@ def export_schedules(request):
                         schedule.task_type, schedule.transactor, str(schedule.lcdate)])
 
     return response
+
+@login_required
+def export_projects(request):
+    
+    user = request.user
+    keychar = request.GET.get('name', '')
+    state = request.GET.get('state', 'all')
+    m = request.GET.get('main', '0')
+    ismain = 0
+    try:
+        ismain = int(m)
+    except:
+        pass
+
+    new_context = None
+
+    if state == 'fin':
+        new_context = Project.objects.filter(
+            Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
+    elif state == 'unfin':
+        new_context = Project.objects.filter(
+            ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
+    else:
+        new_context = Project.objects.filter(
+            department=user.department).order_by('-cdate')
+    if ismain > 0:
+        new_context = new_context.filter(parent_project__isnull=True)
+
+    response = HttpResponse(content_type='text/csv')
+
+    response.charset = 'utf-8-sig' if "Windows" in request.headers.get(
+        'User-Agent') else 'utf-8'
+    response['Content-Disposition'] = 'attachment; filename="projects.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['project','schedule','author','deadline','isfin'])
+
+    for project in new_context:
+        schedule_list = project.schedules.all().order_by('-lcdate')
+        for schedule in schedule_list:
+            writer.writerow([project.name, schedule.name,
+                schedule.transactor, str(schedule.deadline), '完成' if schedule.isfin else '未完成'])
+
+    return response

@@ -78,12 +78,12 @@ class ScheduleForm(ModelForm):
             'deadline': DateInput(),
         }
 
-        # labels = {
-        #     'name': '事项',
-        #     'task_type': '类型',
-        #     'remark': '备注',
-        #     'transactor': '经办人',
-        #     'project': '项目',
-        #     'content': '内容',
-        # }
+        labels = {
+            'name': '事项',
+            'task_type': '类型',
+            'remark': '备注',
+            'transactor': '经办人',
+            'project': '项目',
+            'content': '内容',
+        }
         widgets = {'lcuser': forms.HiddenInput()}

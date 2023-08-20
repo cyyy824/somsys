@@ -29,6 +29,7 @@ urlpatterns = [
     #   path('schedule/add', views.ScheduleCreateView.as_view(), name='pay_create')
     #  path('pay', views.gridnode),
     path('schedule/exportschedules',
-         views.export_schedules, name='export_schedules')
+         views.export_schedules, name='export_schedules'),
+    path('exportprojects', views.export_projects,name='export_projects')
 
 ]

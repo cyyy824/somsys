@@ -1,7 +1,9 @@
 {% extends "projects/schedule_base.html" %}
 {% load static %}
 {% block content %}
-
+<h2 class="page-title">
+    任务修改
+  </h2>
 <div class="m-5">
     <form action="{% url 'schedule_update' schedule.id %}" method="post">
         {% csrf_token %}

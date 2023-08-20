@@ -1,8 +1,10 @@
 {% extends "cost/pay_base.html" %}
 {% load static %}
 {% block content %}
+<h2 class="page-title">
+    支付搜索
+  </h2>
 <div class="col-md-4">
-<h1>支付搜索</h1>
 <a class="btn btn-primary btn-lg m-1" href="{% url 'export_pays' %}?name={{ keychar }}" role="button">导出</a>
 </div>
 <div>

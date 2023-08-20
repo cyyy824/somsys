@@ -1,6 +1,9 @@
 {% extends "cost/pay_base.html" %}
 {% load static %}
 {% block content %}
+<h2 class="page-title">
+    支出列表
+  </h2>
 <div class="col-md-4">
     <a class="btn btn-primary btn-lg m-1" href="{% url 'pay_create' %}" role="button">添加</a>
     <a class="btn btn-primary btn-lg m-1" href="{% url 'export_pays' %}" role="button">导出</a>

@@ -1,7 +1,9 @@
 {% extends "cost/pay_base.html" %}
 {% load static %}
 {% block content %}
-
+<h2 class="page-title">
+    支付修改
+  </h2>
 <div class="m-5">
     <form class="form-line" id="payForm" data-budgets-url="{% url 'load_budget' %}"
         action="{% url 'pay_update' pay.id %}" method="post">

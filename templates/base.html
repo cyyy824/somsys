@@ -62,31 +62,49 @@
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       {% block nav %}
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="/projects/">项目 <span class="sr-only">(current)</span></a>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'project_list' %}">项目</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/schedules">进度</a>
+          <a class="nav-link" href="{% url 'schedule_list' %}">进度</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/cost/pay">支出</a>
+          <a class="nav-link" href="{% url 'pay_list' %}">支出</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/cost/budget">预算</a>
+          <a class="nav-link" href="{% url 'budget_list' %}">预算</a>
         </li>
+
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <button class="btn btn-info " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            您好：{{ user.username }}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item"  href="{% url 'ukanban' %}" title="个人看板">个人看板</a>
+            <a class="dropdown-item"  href="{% url 'changepw' %}" title="修改密码">修改密码</a>
+            <a class="dropdown-item"  href="{% url 'logout' %}">退出</a>
+          </div>
+        </li>
+      {% endif %}
       </ul>
       {% endblock %}
+      <div class="col-md-3 ml-auto">
       {% block search %}
       <form class="form-inline my-2 my-lg-0">
-        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+        <div class="input-icon" style="color:Black">
+          <span class="input-icon-addon">
+            <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+          </span>
+          <input type="text" class="form-control" placeholder="Search…" aria-label="Search in website">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
+        </div>
+
       </form>
       {% endblock %}
-      {% if user.is_authenticated %}
-      <div class="navbar-brand">您好：<a href="/accounts/changepw" title="修改密码">{{ user.username }}</a>，<a
-          href="/accounts/logout ">退出</a>
-      </div>
-      {% endif %}
+    </div>
+      
 
     </div>
   </nav>
@@ -141,6 +159,8 @@
 
   <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <link href="{% static 'css/tabler.min.css' %}" rel="stylesheet"/>
+<script src="{% static 'js/tabler.min.js' %}"></script>
   {% block addjs %}
   {% endblock %}
 
