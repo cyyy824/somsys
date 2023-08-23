@@ -5,7 +5,7 @@ import django.utils.timezone as timezone
 
 
 class BudgetYear(models.Model):
-    year = models.DecimalField(max_digits=4, decimal_places=0)
+    year = models.DecimalField(max_digits=4, unique=True, decimal_places=0)
 
     def __str__(self):
         return str(self.year)
@@ -20,7 +20,7 @@ class Budget(models.Model):
 
     name = models.CharField(max_length=128)
     businessentity = models.CharField(
-        max_length=6, choices=BUSINESSENTITY_CHOICES)
+        max_length=6, choices=BUSINESSENTITY_CHOICES,default=u'集团')
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     cdate = models.DateTimeField(default=timezone.now)
     lcdate = models.DateTimeField(auto_now=True)

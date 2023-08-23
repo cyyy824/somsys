@@ -15,21 +15,10 @@ from django.db.models import Q
 from django.db.models import Sum
 import json
 from django.core import serializers
+import datetime
+
 import csv
 # Create your views here.
-
-@login_required
-def load_projects(request):
-
-    kw = request.GET.get('q', '')
-    data = {}
-    if kw != '':
-        user = request.user
-        projects = Project.objects.filter(
-            Q(department=user.department), Q(name__contains=kw))
-        data["results"] = [{"id": lt.pk, "text": lt.name} for lt in projects]
-    data["pagination"] = {"more": True}
-    return HttpResponse(json.dumps(data))
 
 
 class ProjectSearchView(LoginRequiredMixin, ListView):
@@ -59,6 +48,83 @@ class ProjectSearchView(LoginRequiredMixin, ListView):
         context['progresses'] = progresses
         return context
 
+class MyProjectListView(LoginRequiredMixin, ListView):
+    template_name = 'projects/project_my_list.html'
+    model = Project
+    context_object_name = 'project_list'
+
+    page_type = ''
+    paginate_by = 20
+    page_kwarg = 'page'
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+
+    def get(self, request, *args, **kwargs):
+        state = self.kwargs.get('state', 'all')
+
+        states = ['all', 'fin', 'unfin']
+        if state not in states:
+            state = 'all'
+            kwargs['state'] = state
+        # main = self.kwargs.get('main','0')
+        kwargs['main'] = self.kwargs.get('main', '0')
+        #    return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
+
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+        state = self.kwargs.get('state', 'all')
+        m = self.kwargs.get('main', '0')
+        ismain = 0
+        if m.isdigit():
+            ismain = int(m)
+        
+        new_context = Project.objects.filter(transactor=user.realname)
+
+
+        if state == 'fin':
+            new_context = new_context.filter(
+                Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
+        elif state == 'unfin':
+            new_context = new_context.filter(
+                ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
+        else:
+            new_context = new_context.filter(
+                department=user.department).order_by('-cdate')
+        if ismain > 0:
+            new_context = new_context.filter(parent_project__isnull=True)
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        progresses = {}
+        isexpireds = {}
+        # isexpired = False
+        for project in context['project_list']:
+            aa = project.schedules.filter(
+                isfin=True).aggregate(Sum('progress'))
+            progresses[project.id] = aa['progress__sum'] or 0
+            isexpired = False
+            for schedule in project.schedules.all():
+                if schedule.is_expired():
+                    isexpired = True
+                    break
+            isexpireds[project.id] = isexpired
+
+        context['progresses'] = progresses
+        context['isexpireds'] = isexpireds
+
+        context['state'] = self.kwargs.get('state', 'all')
+        context['ismain'] = self.kwargs.get('main', '0')
+
+        return context
 
 class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_list.html'
@@ -77,14 +143,14 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return page
 
     def get(self, request, *args, **kwargs):
-        state = self.kwargs.get('state','all')
+        state = self.kwargs.get('state', 'all')
 
         states = ['all', 'fin', 'unfin']
         if state not in states:
             state = 'all'
             kwargs['state'] = state
-        #main = self.kwargs.get('main','0')
-        kwargs['main'] = self.kwargs.get('main','0')
+        # main = self.kwargs.get('main','0')
+        kwargs['main'] = self.kwargs.get('main', '0')
         #    return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
 
         return super().get(request, *args, **kwargs)
@@ -119,7 +185,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
         progresses = {}
         isexpireds = {}
-        #isexpired = False
+        # isexpired = False
         for project in context['project_list']:
             aa = project.schedules.filter(
                 isfin=True).aggregate(Sum('progress'))
@@ -239,12 +305,45 @@ class ScheduleSearchView(LoginRequiredMixin, ListView):
                 Q(transactor__contains=keychar)
             ).order_by('-lcdate')
         return new_context
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         keychar = self.request.GET.get('name', '')
         context['keychar'] = keychar
+        return context
+
+class MyScheduleListView(LoginRequiredMixin, ListView):
+    template_name = 'projects/schedule_my_list.html'
+    model = Schedule
+    context_object_name = 'schedule_list'
+    # ordering = ['-lcdate']
+
+    page_type = ''
+    paginate_by = 30
+    page_kwarg = 'page'
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+
+    def get_queryset(self):
+        user = self.request.user
+        
+        new_context = Schedule.objects.filter(
+            department=user.department,transactor=user.realname).order_by('-lcdate')
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        sexpireds = {}
+        for schedule in context['schedule_list']:
+            sexpireds[schedule.id] = schedule.is_expired()
+        context['sexpireds'] = sexpireds
         return context
 
 
@@ -360,6 +459,7 @@ class ScheduleUpdateView(LoginRequiredMixin, UpdateView):
 
 # 导出csv格式
 
+
 @login_required
 def export_schedules(request):
     response = HttpResponse(content_type='text/csv')
@@ -371,26 +471,26 @@ def export_schedules(request):
     writer = csv.writer(response)
     user = request.user
     keychar = request.GET.get('name', '')
-    schedule_list=[]
-    if( keychar == ''):
+    schedule_list = []
+    if (keychar == ''):
         schedule_list = Schedule.objects.filter(
             department=user.department).order_by('-lcdate')
     else:
         schedule_list = Schedule.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=keychar) |
-                Q(transactor__contains=keychar)
-            ).order_by('-lcdate')
-    writer.writerow(['task','project','type','author','date'])
+            Q(department=user.department),
+            Q(name__contains=keychar) |
+            Q(transactor__contains=keychar)
+        ).order_by('-lcdate')
+    writer.writerow(['task', 'project', 'type', 'author', 'date'])
     for schedule in schedule_list:
         writer.writerow([schedule.name, schedule.project.name,
                         schedule.task_type, schedule.transactor, str(schedule.lcdate)])
-
     return response
+
 
 @login_required
 def export_projects(request):
-    
+
     user = request.user
     keychar = request.GET.get('name', '')
     state = request.GET.get('state', 'all')
@@ -422,12 +522,12 @@ def export_projects(request):
     response['Content-Disposition'] = 'attachment; filename="projects.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['project','schedule','author','deadline','isfin'])
+    writer.writerow(['project', 'schedule', 'author', 'deadline', 'isfin'])
 
     for project in new_context:
         schedule_list = project.schedules.all().order_by('-lcdate')
         for schedule in schedule_list:
             writer.writerow([project.name, schedule.name,
-                schedule.transactor, str(schedule.deadline), '完成' if schedule.isfin else '未完成'])
+                             schedule.transactor, str(schedule.deadline), '完成' if schedule.isfin else '未完成'])
 
     return response

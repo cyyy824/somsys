@@ -9,7 +9,7 @@
     创建预算
   </h2>
 
-<div class="m-5">
+<div class="m-5 col-sm-6 col-lg-8">
     <form action="{% url 'budget_create' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}

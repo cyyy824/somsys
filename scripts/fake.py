@@ -75,7 +75,7 @@ if __name__ == '__main__':
     TAKESTATE = ['前期', '设计', '招标', '合同流程', '实施', '完结', '暂停']
     for _ in range(100):
         user = OAUser.objects.order_by('?').first()
-        if user.username == "admin":
+        if user.department == None:
             continue
         project = Project.objects.create(name=fake.sentence(),
                                          businessentity='管委会',
@@ -98,4 +98,4 @@ if __name__ == '__main__':
                                            isfin=False,
                                            progress=0,
                                            deadline=fake.date_time_between(
-                                     start_date='-1y', end_date="-30d"))
+            start_date='-1y', end_date="-30d"))

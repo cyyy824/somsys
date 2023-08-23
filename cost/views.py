@@ -140,7 +140,7 @@ class PaySearchView(LoginRequiredMixin, ListView):
                 Q(transactor__contains=keychar)
             ).order_by('-paydate')
         return new_context
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -148,6 +148,29 @@ class PaySearchView(LoginRequiredMixin, ListView):
         context['keychar'] = keychar
         return context
 
+class MyPayListView(LoginRequiredMixin, ListView):
+    template_name = 'cost/pay_my_list.html'
+    model = Pay
+    context_object_name = 'pay_list'
+
+    page_type = ''
+    paginate_by = 20
+    page_kwarg = 'page'
+    # ordering = ['-paydate']
+    # queryset = Pay.objects.order_by('-paydate')
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+
+    def get_queryset(self):
+        user = self.request.user
+        new_context = Pay.objects.filter(
+            department=user.department,transactor=user.realname).order_by('-paydate')
+        return new_context
 
 class PayListView(LoginRequiredMixin, ListView):
     template_name = 'cost/pay_list.html'
@@ -229,6 +252,7 @@ class PayUpdateView(LoginRequiredMixin, UpdateView):
 
         return kwargs
 
+
 @login_required
 def export_pays(request):
     response = HttpResponse(content_type='text/csv')
@@ -240,17 +264,18 @@ def export_pays(request):
     user = request.user
     keychar = request.GET.get('name', '')
     pay_list = []
-    if( keychar == ''):
+    if (keychar == ''):
         pay_list = Pay.objects.filter(
             department=user.department).order_by('-paydate')
     else:
         pay_list = Pay.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=keychar) |
-                Q(transactor__contains=keychar)
-            ).order_by('-paydate')
-    
-    writer.writerow(['payname','businessentity','date','author','amount','budget','project'])
+            Q(department=user.department),
+            Q(name__contains=keychar) |
+            Q(transactor__contains=keychar)
+        ).order_by('-paydate')
+
+    writer.writerow(['payname', 'businessentity', 'date',
+                    'author', 'amount', 'budget', 'project'])
     for pay in pay_list:
         writer.writerow([pay.name, pay.businessentity, str(
             pay.paydate), pay.transactor, pay.amount, pay.budget])

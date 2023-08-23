@@ -2,6 +2,15 @@ from django.contrib import admin
 from .models import Budget, Pay, BudgetYear
 # Register your models here.
 
-admin.site.register(Budget)
-admin.site.register(Pay)
-admin.site.register(BudgetYear)
+
+class BudgetAdmin(admin.ModelAdmin):
+    list_display = ('name', 'businessentity', 'amount', 'year', 'department')
+
+
+class PayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'transactor', 'paydate',
+                    'project', 'amount', 'department')
+
+
+admin.site.register(Budget, BudgetAdmin)
+admin.site.register(Pay, PayAdmin)

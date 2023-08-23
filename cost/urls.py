@@ -13,10 +13,11 @@ urlpatterns = [
     path('budget/ajax/load_budget', views.load_budgets, name='load_budget'),
 
     path('pay', views.PayListView.as_view(), name='pay_list'),
+    path('mypay', views.MyPayListView.as_view(), name='mypay_list'),
     path('pay/update/<int:pk>', views.PayUpdateView.as_view(), name='pay_update'),
     path('pay/add', views.PayCreateView.as_view(), name='pay_create'),
     path('pay/add/<int:project_id>',
-         views.PayCreateView.as_view(), name='pay_create'),
+         views.PayCreateView.as_view(), name='pay_create_fromproject'),
     path('pay/search', views.PaySearchView.as_view(), name='pay_search'),
     path('pay/exportpays', views.export_pays, name='export_pays')
     #  path('pay', views.gridnode),

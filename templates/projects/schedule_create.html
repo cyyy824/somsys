@@ -4,7 +4,7 @@
 <h2 class="page-title">
     任务创建
   </h2>
-<div class="m-5">
+<div class="m-5 col-sm-6 col-lg-8">
     <form action="" method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -18,8 +18,8 @@
 {% endblock %}
 
 {% block addjs %}
-<link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.min.css' %}" />
-<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'plugins/datetimepicker/jquery.datetimepicker.min.css' %}" />
+<script src="{% static 'plugins/datetimepicker/jquery.datetimepicker.full.min.js' %}"></script>
 <script>
     var $j = jQuery.noConflict();
     $j(function () {

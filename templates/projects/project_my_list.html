@@ -10,18 +10,18 @@
         <tr>
             <td> 
                 <select class="form-control" onchange="self.location.href=options[selectedIndex].value">
-                    <option value="{% url 'project_list' %}all/{{ ismain }}" {% if state == "all" %} selected {% endif %}>全部</option>
-                    <option value="{% url 'project_list' %}fin/{{ ismain }}" {% if state == "fin" %}selected{% endif %}>
+                    <option value="{% url 'myproject_list' %}all/{{ ismain }}" {% if state == "all" %} selected {% endif %}>全部</option>
+                    <option value="{% url 'myproject_list' %}fin/{{ ismain }}" {% if state == "fin" %}selected{% endif %}>
                         已完成</option>
-                    <option value="{% url 'project_list' %}unfin/{{ ismain }}" {% if state == "unfin" %}selected{% endif %}>未完成
+                    <option value="{% url 'myproject_list' %}unfin/{{ ismain }}" {% if state == "unfin" %}selected{% endif %}>未完成
                     </option>
                 </select>
             </td>
             <td>
                 <select class="form-control" onchange="self.location.href=options[selectedIndex].value">
-                    <option value="{% url 'project_list' %}{{ state }}/0" {% if ismain == '0' %} selected {% endif %}>
+                    <option value="{% url 'myproject_list' %}{{ state }}/0" {% if ismain == '0' %} selected {% endif %}>
                         所有项目</option>
-                    <option value="{% url 'project_list' %}{{ state }}/1" {% if ismain != '0' %} selected {% endif %}>
+                    <option value="{% url 'myproject_list' %}{{ state }}/1" {% if ismain != '0' %} selected {% endif %}>
                         主要项目</option>
                 </select>
             </td>
@@ -29,7 +29,7 @@
                 <a class="btn btn-primary m-1" href="{% url 'project_create' %}" role="button">添加</a>
             </td>
             <td>
-                <a class="btn btn-primary m-1" href="{% url 'export_projects' %}?state={{ state }}&main={{ main }}" role="button">导出</a>
+              
             </td>
         </tr>
     </table>
