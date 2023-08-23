@@ -14,3 +14,4 @@ class PayAdmin(admin.ModelAdmin):
 
 admin.site.register(Budget, BudgetAdmin)
 admin.site.register(Pay, PayAdmin)
+admin.site.register(BudgetYear)
