@@ -10,7 +10,7 @@
     <h2>任务：{{ schedule.name }}</h2>
     <p>类型：{{ schedule.task_type }}</p>
     <p>经办人：{{ schedule.transactor }}</p>
-    <p>创建日期：{{ schedule.cdate }}</p>
+    <p>创建日期：{{ schedule.cdate|date:"Y-m-d" }}</p>
     <p>关键节点：<input type="checkbox" onclick="return false" {% if schedule.iskey %}checked{% endif %} /></p>
     <p>是否完成：<input type="checkbox" onclick="return false" {% if schedule.isfin %}checked{% endif %} /></p>
     <p>进度值：{{ schedule.progress }}</p>

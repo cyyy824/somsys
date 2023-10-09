@@ -1,6 +1,7 @@
 from django.db import models
 import django.utils.timezone as timezone
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 
@@ -20,7 +21,7 @@ class Budget(models.Model):
 
     name = models.CharField(max_length=128)
     businessentity = models.CharField(
-        max_length=6, choices=BUSINESSENTITY_CHOICES,default=u'集团')
+        max_length=6, choices=BUSINESSENTITY_CHOICES, default=u'集团')
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     cdate = models.DateTimeField(default=timezone.now)
     lcdate = models.DateTimeField(auto_now=True)
@@ -72,3 +73,12 @@ class Pay(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(post_save, sender=Pay)
+def change_schedule(sender, instance, created, **kwargs):
+    if instance:
+        project = instance.project
+        if project:
+            project.lcdate = timezone.now
+            project.save()

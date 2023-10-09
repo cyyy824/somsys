@@ -1,6 +1,6 @@
 {% extends "cost/budget_base.html" %}
 {% load static %}
-
+{% load getitem_tag %}
 {% block content %}
 <h2 class="page-title">
     预算明细
@@ -9,9 +9,9 @@
     <h2>{{ budget.name }}</h2>
     <p>单位主体：{{ budget.businessentity }}</p>
     <p>预算年：{{ budget.year }}</p>
-    <p>金额：{{ budget.amount }}</p>
-    <p>创建日期：{{ budget.cdate }}</p>
-    <p>修改日期：{{ budget.lcdate }}</p>
+    <p>金额：{{ budget.amount|div:10000 }}万</p>
+    <p>创建日期：{{ budget.cdate|date:"Y-m-d" }}</p>
+    <p>修改日期：{{ budget.lcdate|date:"Y-m-d" }}</p>
 
     <h3>支出</h3>
     <table class="table">
@@ -28,9 +28,9 @@
             {% for pay in budget.pays.all|dictsortreversed:"paydate" %}
             <tr>
                 <td>{{ pay.name }}</td>
-                <td>{{ pay.paydate }}</td>
+                <td>{{ pay.paydate|date:"Y-m-d" }}</td>
                 <td>{{ pay.transactor }}</td>
-                <td>{{ pay.amount }}</td>
+                <td>{{ pay.amount|div:10000 }}万</td>
                 <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
             </tr>
             {% empty %}

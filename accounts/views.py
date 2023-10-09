@@ -94,6 +94,7 @@ class PersonKanbanView(LoginRequiredMixin, TemplateView):
         schedules = schedules[:5]
         pays = pays[:5]
 
+        context['touser'] = user
         context['paynum'] = paynum
         context['pay_value'] = pay_value
         context['projectnum'] = projectnum
@@ -121,69 +122,7 @@ class PersonKanbanView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class PersonKanbantoView(LoginRequiredMixin, TemplateView):
+class PersonKanbantoView(PersonKanbanView):
     template_name = 'accounts/person_kanbanto.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        u_id = self.kwargs.get('u_id', 0)
-        if u_id > 0:
-            user = OAUser.objects.get(pk=u_id)
-
-        if not user:
-            return context
-
-        projects = Project.objects.filter(
-            Q(department=user.department),
-            Q(transactor=user.realname))
-
-        schedules = Schedule.objects.filter(
-            Q(department=user.department),
-            Q(transactor=user.realname))
-
-        pays = Pay.objects.filter(
-            Q(department=user.department),
-            Q(transactor=user.realname))
-
-        pay_value = pays.aggregate(Sum('amount'))['amount__sum'] or 0
-        projectnum = projects.count
-        projectfin = projects.filter(task_state=u'完成').count
-        projectufin = projects.exclude(task_state=u'完成').count
-
-        tasknum = schedules.count
-        taskfin = schedules.filter(isfin=True).count
-        taskufin = schedules.filter(isfin=False).count
-
-        paynum = pays.count
-
-        projects = projects[:5]
-        schedules = schedules[:5]
-        pays = pays[:5]
-
-        context['paynum'] = paynum
-        context['pay_value'] = pay_value
-        context['projectnum'] = projectnum
-        context['projectfin'] = projectfin
-        context['projectufin'] = projectufin
-        context['schedulenum'] = tasknum
-        context['schedulefin'] = taskfin
-        context['scheduleufin'] = taskufin
-        context['touser'] = user
-
-        context['projects'] = projects
-        context['schedules'] = schedules
-        context['pays'] = pays
-
-        cprogresses = {}
-        for cproject in projects:
-            aa = cproject.schedules.filter(
-                isfin=True).aggregate(Sum('progress'))
-            cprogresses[cproject.id] = aa['progress__sum'] or 0
-        context['cprogresses'] = cprogresses
-
-        sexpireds = {}
-        for schedule in schedules:
-            sexpireds[schedule.id] = schedule.is_expired()
-        context['sexpireds'] = sexpireds
-        return context
+    

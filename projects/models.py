@@ -1,8 +1,13 @@
 from django.db import models
 import django.utils.timezone as timezone
-#from django.utils.timezone import now
+# from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
+
+User = get_user_model()
 
 
 class Project(models.Model):
@@ -28,7 +33,7 @@ class Project(models.Model):
     businessentity = models.CharField(
         max_length=6, choices=BUSINESSENTITY_CHOICES, default='集团', verbose_name='主体')
     task_state = models.CharField(
-        max_length=20, choices=TASK_STATE_CHOICES,default='其他', verbose_name='状态')
+        max_length=20, choices=TASK_STATE_CHOICES, default='其他', verbose_name='状态')
     transactor = models.CharField(max_length=32, verbose_name='经办人')
     amount = models.DecimalField(
         max_digits=11, decimal_places=2, verbose_name='金额', default=0)
@@ -38,9 +43,9 @@ class Project(models.Model):
     remark = models.CharField(max_length=256, blank=True, verbose_name='备注')
 
     cuser = models.ForeignKey(
-        'accounts.OAUser', on_delete=models.SET_NULL, related_name='create_projects', blank=True, null=True, verbose_name='创建人')
+        User, on_delete=models.SET_NULL, related_name='create_projects', blank=True, null=True, verbose_name='创建人')
     lcuser = models.ForeignKey(
-        'accounts.OAUser', on_delete=models.SET_NULL, related_name='change_projects', blank=True, null=True, verbose_name='最后修改人')
+        User, on_delete=models.SET_NULL, related_name='change_projects', blank=True, null=True, verbose_name='最后修改人')
 
     parent_project = models.ForeignKey(
         'Project', on_delete=models.SET_NULL, related_name='child_projects', blank=True, null=True, verbose_name='父项目')
@@ -85,9 +90,9 @@ class Schedule(models.Model):
     remark = models.CharField(max_length=256, blank=True, verbose_name='备注')
 
     cuser = models.ForeignKey(
-        'accounts.OAUser', on_delete=models.SET_NULL, related_name='create_schedules', blank=True, null=True, verbose_name='')
+        User, on_delete=models.SET_NULL, related_name='create_schedules', blank=True, null=True, verbose_name='')
     lcuser = models.ForeignKey(
-        'accounts.OAUser', on_delete=models.SET_NULL, related_name='change_schedules', blank=True, null=True, verbose_name='')
+        User, on_delete=models.SET_NULL, related_name='change_schedules', blank=True, null=True, verbose_name='')
 
     project = models.ForeignKey(
         'Project', on_delete=models.CASCADE, related_name='schedules', verbose_name='')
@@ -97,9 +102,17 @@ class Schedule(models.Model):
 
     def is_expired(self):
         if self.deadline:
-            if not self.isfin and timezone.now()>self.deadline:
+            if not self.isfin and timezone.now() > self.deadline:
                 return True
         return False
 
     def __str__(self):
         return self.name
+
+
+@receiver(post_save, sender=Schedule)
+def change_schedule(sender, instance, created, **kwargs):
+    if instance:
+        project = instance.project
+        project.lcdate = timezone.now
+        project.save()

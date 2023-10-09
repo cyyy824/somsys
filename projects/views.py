@@ -34,7 +34,7 @@ class ProjectSearchView(LoginRequiredMixin, ListView):
                 Q(department=user.department),
                 Q(name__contains=keychar) |
                 Q(transactor__contains=keychar)
-            ).order_by('-cdate')
+            ).order_by('-lcdate')
         return new_context
 
     def get_context_data(self, **kwargs):
@@ -47,6 +47,7 @@ class ProjectSearchView(LoginRequiredMixin, ListView):
             progresses[project.id] = aa['progress__sum'] or 0
         context['progresses'] = progresses
         return context
+
 
 class MyProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_my_list.html'
@@ -84,9 +85,8 @@ class MyProjectListView(LoginRequiredMixin, ListView):
         ismain = 0
         if m.isdigit():
             ismain = int(m)
-        
-        new_context = Project.objects.filter(transactor=user.realname)
 
+        new_context = Project.objects.filter(transactor=user.realname)
 
         if state == 'fin':
             new_context = new_context.filter(
@@ -125,6 +125,7 @@ class MyProjectListView(LoginRequiredMixin, ListView):
         context['ismain'] = self.kwargs.get('main', '0')
 
         return context
+
 
 class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_list.html'
@@ -169,13 +170,13 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
         if state == 'fin':
             new_context = Project.objects.filter(
-                Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
+                Q(task_state=u'完结'), Q(department=user.department)).order_by('-lcdate')
         elif state == 'unfin':
             new_context = Project.objects.filter(
-                ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
+                ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-lcdate')
         else:
             new_context = Project.objects.filter(
-                department=user.department).order_by('-cdate')
+                department=user.department).order_by('-lcdate')
         if ismain > 0:
             new_context = new_context.filter(parent_project__isnull=True)
         return new_context
@@ -313,6 +314,7 @@ class ScheduleSearchView(LoginRequiredMixin, ListView):
         context['keychar'] = keychar
         return context
 
+
 class MyScheduleListView(LoginRequiredMixin, ListView):
     template_name = 'projects/schedule_my_list.html'
     model = Schedule
@@ -332,9 +334,9 @@ class MyScheduleListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        
+
         new_context = Schedule.objects.filter(
-            department=user.department,transactor=user.realname).order_by('-lcdate')
+            department=user.department, transactor=user.realname).order_by('-lcdate')
         return new_context
 
     def get_context_data(self, **kwargs):

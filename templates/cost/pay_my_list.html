@@ -1,5 +1,6 @@
 {% extends "cost/pay_base.html" %}
 {% load static %}
+{% load getitem_tag %}
 {% block content %}
 <h2 class="page-title">
     支出列表
@@ -26,10 +27,10 @@
             <tr>
                 <td>{{ pay.name }}</td>
                 <td>{{ pay.businessentity }}</td>
-                <td>{{ pay.paydate }}</td>
+                <td>{{ pay.paydate|date:"Y-m-d" }}</td>
                 <td>{{ pay.transactor }}</td>
-                <td>{{ pay.amount }}</td>
-                <td>{{ pay.budget }}</td>
+                <td>{{ pay.amount|div:10000 }}万</td>
+                <td>{{ pay.budget|div:10000 }}万</td>
                 <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
             </tr>
             {% endfor %}

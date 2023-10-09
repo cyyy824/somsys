@@ -21,11 +21,11 @@
                 <td>单位主体：{{ project.businessentity }}</td>
             </tr>
             <tr>
-                <td>创建日期：{{ project.cdate }}</td>
-                <td>修改日期：{{ project.lcdate }}</td>
+                <td>创建日期：{{ project.cdate|date:"Y-m-d" }}</td>
+                <td>修改日期：{{ project.lcdate|date:"Y-m-d" }}</td>
             </tr>
             <tr>
-                <td>金额：{{ project.amount }}</td>
+                <td>金额：{{ project.amount|div:10000 }}万</td>
                 <td>进度：<progress max="100" value="{{ progress }}" titile="{{ progress }}%"></progress></td>
             </tr>
             <tr>
@@ -96,7 +96,7 @@
                 {% for pay in project.pays.all|dictsortreversed:"paydate" %}
                 <tr>
                     <td>{{ pay.name }}</td>
-                    <td>{{ pay.paydate }}</td>
+                    <td>{{ pay.paydate|date:"Y-m-d" }}</td>
                     <td>{{ pay.transactor }}</td>
                     <td>{{ pay.amount }}</td>
                     <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>

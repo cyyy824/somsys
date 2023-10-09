@@ -59,8 +59,8 @@
                 <td>
                     <progress max="100" value="{{ progresses|get_item:project.id }}"></progress></td>
                 <td>{{ project.transactor }}</td>
-                <td>{{ project.amount }}</td>
-                <td>{{ project.lcdate }}</td>
+                <td>{{ project.amount|div:10000 }}万</td>
+                <td>{{ project.lcdate|date:"Y-m-d" }}</td>
                 <td>
                     {% if project.parent_project %}
                     <a href="{% url 'project_detail' project.parent_project.id %}">{{ project.parent_project }}</a>

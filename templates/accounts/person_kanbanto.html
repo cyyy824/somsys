@@ -73,7 +73,7 @@
         <div class="card">
             <div class="card-header">
               <h3 class="card-title">项目</h3>
-              
+              <div class="col-md-2 ml-auto"><a href="{% url 'project_list' %}">更多</a></div>
             </div>
             <div class="table-responsive">
               <table class="table table-sm card-table table-vcenter">
@@ -103,7 +103,7 @@
         <div class="card">
             <div class="card-header">
               <h3 class="card-title">费用</h3>
-              
+              <div class="col-md-2 ml-auto"><a href="{% url 'pay_list' %}">更多</a></div>
             </div>
             <div class="table-responsive">
               <table class="table card-table table-vcenter">
@@ -136,7 +136,7 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">任务</h3>
-            
+            <div class="col-md-2 ml-auto"><a href="{% url 'schedule_list' %}">更多</a></div>
           </div>
           <div class="table-responsive">
             <table class="table card-table table-vcenter">
@@ -175,7 +175,7 @@
 {% endblock %}
 
 {% block addjs %}
-<script src="{% static 'plugins/echarts/echarts.min.js' %}"></script>
+<script src="{% static 'js/echarts.min.js' %}"></script>
 <script type="text/javascript">
 var myChart = echarts.init(document.getElementById('chart1'));
 $.ajax({
