@@ -1,5 +1,6 @@
 {% extends "projects/schedule_base.html" %}
 {% load static %}
+{% load comments %}
 {% block content %}
 <h2 class="page-title">
     任务明细
@@ -20,6 +21,42 @@
     <p class="px-2">{{ schedule.content }}</p>
     <p>备注：{{ schedule.remark }}</p>
     <p><a href="{% url 'schedule_update' schedule.id%}">编辑</a></p>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+      <h4>评论列表</h4>
+  </div>
+
+  <div class="panel-body">
+      {% get_comment_list for schedule as comments %}
+      {% for comment in comments %}
+          <div class="blog_comment" name="F{{comment.id}}">
+              <p class="comment_title">
+                  #{{ comment.submit_date|date:"Y-m-d H:i"}} @ {{ comment.user_name }}：
+              </p>
+              
+              <p class="comment_content">{{ comment.comment }}</p>
+          </div>            
+      {% empty %}
+          <span>暂无评论</span>
+      {% endfor %}
+  </div>
+
+  {% get_comment_form for schedule as form %}
+  <form action="{% comment_form_target %}" method="POST">
+  {% csrf_token %}
+  <input type="hidden" id="id_name" name="name" value="{{ user.realname }}" />
+  <input type="hidden" id="id_email" name="email" value="xx@xx.com" />
+     
+  {{ form.comment }}
+  {{ form.content_type }}
+  {{ form.object_pk }}
+  {{ form.timestamp }}
+  {{ form.security_hash }}
+  <input type="hidden" name="next" value="{% url 'schedule_detail' schedule.id %}" />
+  <input type="submit" value="提交评论" id="id_submit" />
+  </form>
+ 
 </div>
 
 {% endblock %}

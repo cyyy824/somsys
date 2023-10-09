@@ -24,4 +24,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     #   path('tasks/', include('tasks.urls')),
     path('', include('projects.urls')),
+    path('^comments/', include('django_comments.urls')),
 ]

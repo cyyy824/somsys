@@ -1,6 +1,7 @@
 {% extends "projects/project_base.html" %}
 {% load getitem_tag %}
 {% load static %}
+{% load comments %}
 {% block content %}
 <h2 class="page-title">
     项目明细
@@ -15,7 +16,7 @@
             无
             {% endif %}
         </p>
-        <table border="1">
+        <table class="table">
             <tr>
                 <td>经办人：{{ project.transactor }}</td>
                 <td>单位主体：{{ project.businessentity }}</td>
@@ -149,6 +150,43 @@
             </tbody>
         </table>
 
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>评论列表</h4>
+        </div>
+     
+        <div class="panel-body">
+            {% get_comment_list for project as comments %}
+            {% for comment in comments %}
+                <div class="blog_comment" name="F{{comment.id}}">
+                    <p class="comment_title">
+                        #{{ comment.submit_date|date:"Y-m-d H:i"}} @ {{ comment.user_name }}：
+                    </p>
+                    
+                    <p class="comment_content">{{ comment.comment }}</p>
+                </div>            
+            {% empty %}
+                <span>暂无评论</span>
+            {% endfor %}
+        </div>
+
+        {% get_comment_form for project as form %}
+        <form action="{% comment_form_target %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="id_name" name="name" value="{{ user.realname }}" />
+        <input type="hidden" id="id_email" name="email" value="xx@xx.com" />
+           
+        {{ form.comment }}
+        {{ form.content_type }}
+        {{ form.object_pk }}
+        {{ form.timestamp }}
+        {{ form.security_hash }}
+        <input type="hidden" name="next" value="{% url 'project_detail' project.id %}" />
+        <input type="submit" value="提交评论" id="id_submit" />
+        </form>
+       
     </div>
 
 </div>

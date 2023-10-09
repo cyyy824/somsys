@@ -37,6 +37,22 @@ url = "https://pypi.doubanio.com/simple"
 reference = "douban"
 
 [[package]]
+name = "django-contrib-comments"
+version = "2.2.0"
+description = "The code formerly known as django.contrib.comments."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Django = ">=2.2"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.doubanio.com/simple"
+reference = "douban"
+
+[[package]]
 name = "faker"
 version = "11.3.0"
 description = "Faker is a Python package that generates fake data for you."
@@ -160,7 +176,7 @@ reference = "douban"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4d2a0c691fc2edcea89201f0cdde788f982fdad4a179c595a8b34710cea999d0"
+content-hash = "6b10d71b7a1bcb2e108eacdb38f163ee1914b2b4f1a6655ee12391ba9d7bdafc"
 
 [metadata.files]
 asgiref = [
@@ -170,6 +186,10 @@ asgiref = [
 django = [
     {file = "Django-4.0.1-py3-none-any.whl", hash = "sha256:7cd8e8a3ed2bc0dfda05ce1e53a9c81b30eefd7aa350e538a18884475e4d4ce2"},
     {file = "Django-4.0.1.tar.gz", hash = "sha256:2485eea3cc4c3bae13080dee866ebf90ba9f98d1afe8fda89bfb0eb2e218ef86"},
+]
+django-contrib-comments = [
+    {file = "django-contrib-comments-2.2.0.tar.gz", hash = "sha256:48de00f15677e016a216aeff205d6e00e4391c9a5702136c64119c472b7356da"},
+    {file = "django_contrib_comments-2.2.0-py3-none-any.whl", hash = "sha256:2ca79060bbc8fc5b636981ef6e50f35ab83649af75fc1be47bf770636be3271c"},
 ]
 faker = [
     {file = "Faker-11.3.0-py3-none-any.whl", hash = "sha256:61f97034cea252b8426d81810afab2f3c27b584f2b4313400a0cc83a9b013ded"},

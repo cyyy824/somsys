@@ -10,6 +10,7 @@ Django = "^4.0"
 faker = "^11.3.0"
 pymysql = "^1.0.2"
 gunicorn = "^20.1.0"
+django-contrib-comments = "^2.2.0"
 
 [tool.poetry.dev-dependencies]
 
