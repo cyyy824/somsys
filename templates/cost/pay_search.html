@@ -29,7 +29,11 @@
                 <td>{{ pay.paydate }}</td>
                 <td>{{ pay.transactor }}</td>
                 <td>{{ pay.amount|div:10000 }}万</td>
-                <td>{{ pay.budget|div:10000 }}万</td>
+                <td>
+                    {% if pay.budget %}
+                    {{ pay.budget.businessentity }}：{{ pay.budget }}
+                    {% endif %}
+                </td>
                 <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
             </tr>
             {% endfor %}

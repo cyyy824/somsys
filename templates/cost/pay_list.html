@@ -32,8 +32,9 @@
                 <td>{{ pay.amount|div:10000 }}万</td>
                 <td>
                     {% if pay.budget %}
-                        {{ pay.budget.amount|div:10000 }}万
-                    {% endif %}</td>
+                    {{ pay.budget.businessentity }}：{{ pay.budget }}
+                    {% endif %}
+                </td>
                 <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
             </tr>
             {% endfor %}

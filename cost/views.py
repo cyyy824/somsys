@@ -19,7 +19,10 @@ import csv
 
 # Create your views here.
 
+# select budget for year
 
+
+@login_required
 def load_budgets(request):
     user = request.user
     year_id = request.GET.get('yearid')
@@ -137,7 +140,7 @@ class PaySearchView(LoginRequiredMixin, ListView):
             new_context = Pay.objects.filter(
                 Q(department=user.department),
                 Q(name__contains=keychar) |
-                Q(transactor__contains=keychar)
+                Q(transactor__realname__contains=keychar)
             ).order_by('-paydate')
         return new_context
 
@@ -148,29 +151,6 @@ class PaySearchView(LoginRequiredMixin, ListView):
         context['keychar'] = keychar
         return context
 
-class MyPayListView(LoginRequiredMixin, ListView):
-    template_name = 'cost/pay_my_list.html'
-    model = Pay
-    context_object_name = 'pay_list'
-
-    page_type = ''
-    paginate_by = 20
-    page_kwarg = 'page'
-    # ordering = ['-paydate']
-    # queryset = Pay.objects.order_by('-paydate')
-
-    @property
-    def page_number(self):
-        page_kwarg = self.page_kwarg
-        page = self.kwargs.get(
-            page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        return page
-
-    def get_queryset(self):
-        user = self.request.user
-        new_context = Pay.objects.filter(
-            department=user.department,transactor=user.realname).order_by('-paydate')
-        return new_context
 
 class PayListView(LoginRequiredMixin, ListView):
     template_name = 'cost/pay_list.html'
@@ -197,6 +177,16 @@ class PayListView(LoginRequiredMixin, ListView):
         return new_context
 
 
+class MyPayListView(PayListView):
+    template_name = 'cost/pay_my_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        new_context = Pay.objects.filter(
+            department=user.department, transactor=user).order_by('-paydate')
+        return new_context
+
+
 class PayCreateView(LoginRequiredMixin, CreateView):
     template_name = 'cost/pay_create.html'
     model = Pay
@@ -209,19 +199,20 @@ class PayCreateView(LoginRequiredMixin, CreateView):
         project_id = self.kwargs.get('project_id')
 
         kwargs.update({'user': self.request.user})
+        user = self.request.user
         if project_id:
             project = Project.objects.get(id=project_id)
             # 进入网页，该字段值：{'initial': {}, 'prefix': None, 'instance': None}
-            user = self.request.user
+
             kwargs.update(
                 # 给表单的phase字段传递外键实例
                 {'initial': {'paydate': datetime.date.today(), 'remark': '',
-                             'project': project, 'transactor': user.realname}}
+                             'project': project, 'transactor': user}}
             )
         else:
             kwargs.update(
                 {'initial': {'paydate': datetime.date.today(), 'remark': '',
-                             'transactor': self.request.user.realname}}
+                             'transactor': user}}
             )
         return kwargs
 

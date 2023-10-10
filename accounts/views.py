@@ -69,15 +69,15 @@ class PersonKanbanView(LoginRequiredMixin, TemplateView):
 
         projects = Project.objects.filter(
             Q(department=user.department),
-            Q(transactor=user.realname))
+            Q(transactor=user))
 
         schedules = Schedule.objects.filter(
             Q(department=user.department),
-            Q(transactor=user.realname))
+            Q(transactor=user))
 
         pays = Pay.objects.filter(
             Q(department=user.department),
-            Q(transactor=user.realname))
+            Q(transactor=user))
 
         pay_value = pays.aggregate(Sum('amount'))['amount__sum'] or 0
         projectnum = projects.count
@@ -124,5 +124,3 @@ class PersonKanbanView(LoginRequiredMixin, TemplateView):
 
 class PersonKanbantoView(PersonKanbanView):
     template_name = 'accounts/person_kanbanto.html'
-
-    

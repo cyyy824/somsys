@@ -34,7 +34,9 @@ class Project(models.Model):
         max_length=6, choices=BUSINESSENTITY_CHOICES, default='集团', verbose_name='主体')
     task_state = models.CharField(
         max_length=20, choices=TASK_STATE_CHOICES, default='其他', verbose_name='状态')
-    transactor = models.CharField(max_length=32, verbose_name='经办人')
+  #  transactor = models.CharField(max_length=32, verbose_name='经办人')
+    transactor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='transactor_projects', blank=True, null=True, verbose_name='经办人')
     amount = models.DecimalField(
         max_digits=11, decimal_places=2, verbose_name='金额', default=0)
     content = models.TextField(blank=True, verbose_name='内容简介')
@@ -77,7 +79,9 @@ class Schedule(models.Model):
     task_type = models.CharField(
         max_length=20, choices=TASK_TYPE_CHOICES, null=True, verbose_name='类型')
 
-    transactor = models.CharField(max_length=32, verbose_name='经办人')
+    #transactor = models.CharField(max_length=32, verbose_name='经办人')
+    transactor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='transactor_schedules', blank=True, null=True, verbose_name='经办人')
     content = models.TextField(blank=True, verbose_name='内容')
 
     iskey = models.BooleanField(default=False, verbose_name=u'是否关键节点')

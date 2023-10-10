@@ -7,56 +7,70 @@
   </h2>
 
 <div class="m-5 col-sm-8 col-lg-8">
-    <h1>项目：{{ schedule.project }}</h1>
-    <h2>任务：{{ schedule.name }}</h2>
-    <p>类型：{{ schedule.task_type }}</p>
-    <p>经办人：{{ schedule.transactor }}</p>
-    <p>创建日期：{{ schedule.cdate|date:"Y-m-d" }}</p>
-    <p>关键节点：<input type="checkbox" onclick="return false" {% if schedule.iskey %}checked{% endif %} /></p>
-    <p>是否完成：<input type="checkbox" onclick="return false" {% if schedule.isfin %}checked{% endif %} /></p>
-    <p>进度值：{{ schedule.progress }}</p>
-    <p>截止时间：{{ schedule.deadline }}</p>
-    <p>超期否：{% if sexpired %}超期{% else %}未超期{% endif %}</p>
-    <p>内容：</p>
-    <p class="px-2">{{ schedule.content }}</p>
-    <p>备注：{{ schedule.remark }}</p>
+    <h1>任务：{{ schedule.name }}</h1>
+    <h2 class="form-control">项目：{{ schedule.project }}</h2>
+    <table class="table">
+        <tr>
+            <td>类型：{{ schedule.task_type }}</td>
+            <td>经办人：{{ schedule.transactor }}</td>
+        </tr>
+        <tr>
+            <td>创建日期：{{ schedule.cdate|date:"Y-m-d" }}</td>
+            <td>截止时间：{{ schedule.deadline }}</td>
+        </tr>
+        <tr>
+            <td>是否完成：<input type="checkbox" onclick="return false" {% if schedule.isfin %}checked{% endif %} /></td>
+            <td>关键节点：<input type="checkbox" onclick="return false" {% if schedule.iskey %}checked{% endif %} /></td>
+        </tr>
+        <tr>
+            <td>进度值：{{ schedule.progress }}</td>
+            <td>超期否：{% if sexpired %}超期{% else %}未超期{% endif %}</td>
+        </tr>
+        <tr>
+            <td colspan="2"><p>内容：</p><p>{{ schedule.content }}</p></td>
+        </tr>
+        <tr>
+            <td colspan="2">备注：{{ schedule.remark }}</td>
+        </tr>
+    </table>
     <p><a href="{% url 'schedule_update' schedule.id%}">编辑</a></p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>评论列表</h4>
+        </div>
+      
+        <div class="panel-body">
+            {% get_comment_list for schedule as comments %}
+            {% for comment in comments %}
+                <div class="blog_comment" name="F{{comment.id}}">
+                    <p class="comment_title">
+                        #{{ comment.submit_date|date:"Y-m-d H:i"}} @ {{ comment.user_name }}：
+                    </p>
+                    
+                    <p class="comment_content">{{ comment.comment }}</p>
+                </div>            
+            {% empty %}
+                <span>暂无评论</span>
+            {% endfor %}
+        </div>
+      
+        {% get_comment_form for schedule as form %}
+        <form action="{% comment_form_target %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="id_name" name="name" value="{{ user.realname }}" />
+        <input type="hidden" id="id_email" name="email" value="xx@xx.com" />
+           
+        {{ form.comment }}
+        {{ form.content_type }}
+        {{ form.object_pk }}
+        {{ form.timestamp }}
+        {{ form.security_hash }}
+        <input type="hidden" name="next" value="{% url 'schedule_detail' schedule.id %}" />
+        <input type="submit" value="提交评论" id="id_submit" />
+        </form>
+       
+      </div>
 </div>
-<div class="panel panel-default">
-  <div class="panel-heading">
-      <h4>评论列表</h4>
-  </div>
 
-  <div class="panel-body">
-      {% get_comment_list for schedule as comments %}
-      {% for comment in comments %}
-          <div class="blog_comment" name="F{{comment.id}}">
-              <p class="comment_title">
-                  #{{ comment.submit_date|date:"Y-m-d H:i"}} @ {{ comment.user_name }}：
-              </p>
-              
-              <p class="comment_content">{{ comment.comment }}</p>
-          </div>            
-      {% empty %}
-          <span>暂无评论</span>
-      {% endfor %}
-  </div>
-
-  {% get_comment_form for schedule as form %}
-  <form action="{% comment_form_target %}" method="POST">
-  {% csrf_token %}
-  <input type="hidden" id="id_name" name="name" value="{{ user.realname }}" />
-  <input type="hidden" id="id_email" name="email" value="xx@xx.com" />
-     
-  {{ form.comment }}
-  {{ form.content_type }}
-  {{ form.object_pk }}
-  {{ form.timestamp }}
-  {{ form.security_hash }}
-  <input type="hidden" name="next" value="{% url 'schedule_detail' schedule.id %}" />
-  <input type="submit" value="提交评论" id="id_submit" />
-  </form>
- 
-</div>
 
 {% endblock %}

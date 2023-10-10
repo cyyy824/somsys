@@ -60,13 +60,13 @@ if __name__ == '__main__':
 
     print('----create pay------')
     for _ in range(100):
-
+        user = OAUser.objects.order_by('?').first()
         budget = Budget.objects.order_by('?').first()
         pay = Pay.objects.create(name=fake.sentence(),
                                  businessentity='管委会',
                                  paydate=fake.date_time_between(
                                      start_date='-1y', end_date="-30d"),
-                                 transactor=fake.name(),
+                                 transactor=user,
                                  department=budget.department,
                                  amount=random.randint(1, 2000)*10000,
                                  budget=budget)
@@ -81,7 +81,7 @@ if __name__ == '__main__':
                                          businessentity='管委会',
                                          task_state=TAKESTATE[random.randint(
                                              0, len(TAKESTATE)-1)],
-                                         transactor=user.realname,
+                                         transactor=user,
                                          department=user.department,
                                          amount=random.randint(1, 200)*10000,
                                          content=fake.text())

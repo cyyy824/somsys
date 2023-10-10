@@ -53,7 +53,9 @@ class Pay(models.Model):
     businessentity = models.CharField(
         max_length=6, choices=BUSINESSENTITY_CHOICES)
     paydate = models.DateTimeField(default=timezone.now)
-    transactor = models.CharField(max_length=32)
+    #transactor = models.CharField(max_length=32)
+    transactor = models.ForeignKey(
+        'accounts.OAUser', on_delete=models.CASCADE, related_name='transactor_pays', blank=True, null=True, verbose_name='经办人')
 
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     remark = models.CharField(max_length=256, blank=True)
@@ -74,7 +76,7 @@ class Pay(models.Model):
     def __str__(self):
         return self.name
 
-
+# pay change or add, update project change time
 @receiver(post_save, sender=Pay)
 def change_schedule(sender, instance, created, **kwargs):
     if instance:

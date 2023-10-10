@@ -27,7 +27,8 @@ def load_projects(request):
     data["pagination"] = {"more": True}
     return HttpResponse(json.dumps(data))
 
-def get_tasks_day(uid:int,num:int) -> list:
+
+def get_tasks_day(uid: int, num: int) -> list:
 
     taskday = []
     today = datetime.datetime.now()
@@ -35,7 +36,7 @@ def get_tasks_day(uid:int,num:int) -> list:
     if not user:
         return taskday
 
-    finret = Schedule.objects.filter(Q(transactor=user.realname),
+    finret = Schedule.objects.filter(Q(transactor=user),
                                      Q(department=user.department),
                                      Q(isfin=True))
     ret = finret.filter(lcdate__gte=str(today.date())+' 00:00:00')
@@ -49,6 +50,7 @@ def get_tasks_day(uid:int,num:int) -> list:
     taskday.reverse()
     return taskday
 
+
 @login_required
 def load_tasksto_dayfin(request, u_id):
     dstr = request.GET.get('day', '1')
@@ -58,21 +60,23 @@ def load_tasksto_dayfin(request, u_id):
     else:
         day = 1
     data = {}
-    data["series"] = get_tasks_day(u_id,day)
+    data["series"] = get_tasks_day(u_id, day)
     return HttpResponse(json.dumps(data))
 
 
 @login_required
 def load_tasks_dayfin(request):
-    dstr = request.GET.get('day', '1')
-    day = 1
-    if dstr.isdigit():
-        day = int(dstr)
-    else:
-        day = 1
-
-    data = {}
     user = request.user
-    data["series"] = get_tasks_day(user.id,day)
-    return HttpResponse(json.dumps(data))
+    return load_tasksto_dayfin(request, user.id)
 
+    # dstr = request.GET.get('day', '1')
+    # day = 1
+    # if dstr.isdigit():
+    #     day = int(dstr)
+    # else:
+    #     day = 1
+
+    # data = {}
+    # user = request.user
+    # data["series"] = get_tasks_day(user.id,day)
+    # return HttpResponse(json.dumps(data))

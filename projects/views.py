@@ -33,7 +33,7 @@ class ProjectSearchView(LoginRequiredMixin, ListView):
             new_context = Project.objects.filter(
                 Q(department=user.department),
                 Q(name__contains=keychar) |
-                Q(transactor__contains=keychar)
+                Q(transactor__realname__contains=keychar)
             ).order_by('-lcdate')
         return new_context
 
@@ -46,84 +46,6 @@ class ProjectSearchView(LoginRequiredMixin, ListView):
                 isfin=True).aggregate(Sum('progress'))
             progresses[project.id] = aa['progress__sum'] or 0
         context['progresses'] = progresses
-        return context
-
-
-class MyProjectListView(LoginRequiredMixin, ListView):
-    template_name = 'projects/project_my_list.html'
-    model = Project
-    context_object_name = 'project_list'
-
-    page_type = ''
-    paginate_by = 20
-    page_kwarg = 'page'
-
-    @property
-    def page_number(self):
-        page_kwarg = self.page_kwarg
-        page = self.kwargs.get(
-            page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        return page
-
-    def get(self, request, *args, **kwargs):
-        state = self.kwargs.get('state', 'all')
-
-        states = ['all', 'fin', 'unfin']
-        if state not in states:
-            state = 'all'
-            kwargs['state'] = state
-        # main = self.kwargs.get('main','0')
-        kwargs['main'] = self.kwargs.get('main', '0')
-        #    return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
-
-        return super().get(request, *args, **kwargs)
-
-    def get_queryset(self):
-        user = self.request.user
-        state = self.kwargs.get('state', 'all')
-        m = self.kwargs.get('main', '0')
-        ismain = 0
-        if m.isdigit():
-            ismain = int(m)
-
-        new_context = Project.objects.filter(transactor=user.realname)
-
-        if state == 'fin':
-            new_context = new_context.filter(
-                Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
-        elif state == 'unfin':
-            new_context = new_context.filter(
-                ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
-        else:
-            new_context = new_context.filter(
-                department=user.department).order_by('-cdate')
-        if ismain > 0:
-            new_context = new_context.filter(parent_project__isnull=True)
-        return new_context
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        progresses = {}
-        isexpireds = {}
-        # isexpired = False
-        for project in context['project_list']:
-            aa = project.schedules.filter(
-                isfin=True).aggregate(Sum('progress'))
-            progresses[project.id] = aa['progress__sum'] or 0
-            isexpired = False
-            for schedule in project.schedules.all():
-                if schedule.is_expired():
-                    isexpired = True
-                    break
-            isexpireds[project.id] = isexpired
-
-        context['progresses'] = progresses
-        context['isexpireds'] = isexpireds
-
-        context['state'] = self.kwargs.get('state', 'all')
-        context['ismain'] = self.kwargs.get('main', '0')
-
         return context
 
 
@@ -145,15 +67,11 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         state = self.kwargs.get('state', 'all')
-
         states = ['all', 'fin', 'unfin']
         if state not in states:
             state = 'all'
             kwargs['state'] = state
-        # main = self.kwargs.get('main','0')
         kwargs['main'] = self.kwargs.get('main', '0')
-        #    return HttpResponseRedirect(reverse_lazy('project_list', kwargs={'state': state}))
-
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -207,6 +125,17 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return context
 
 
+class MyProjectListView(LoginRequiredMixin, ListView):
+    template_name = 'projects/project_my_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        new_context = None
+        new_context = Project.objects.filter(
+            transactor=user, department=user.department).order_by('-lcdate')
+        return new_context
+
+
 class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = 'projects/project_create.html'
     success_url = reverse_lazy('project_list')
@@ -217,15 +146,15 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         kwargs = super(ProjectCreateView, self).get_form_kwargs()
         user = self.request.user
         pk = self.kwargs.get('parentpk')
-        kwargs.update({'user': self.request.user})
+        kwargs.update({'user': user})
         kwargs.update(
-            {'initial': {'transactor': user.realname}}
+            {'initial': {'transactor': user}}
         )
         if pk != None:
             try:
                 pp = Project.objects.get(id=pk)
                 kwargs.update(
-                    {'initial': {'parent_project': pp, 'transactor': user.realname}}
+                    {'initial': {'parent_project': pp, 'transactor': user}}
                 )
             except Project.DoesNotExist:
                 pass
@@ -303,7 +232,7 @@ class ScheduleSearchView(LoginRequiredMixin, ListView):
             new_context = Schedule.objects.filter(
                 Q(department=user.department),
                 Q(name__contains=keychar) |
-                Q(transactor__contains=keychar)
+                Q(transactor__realname__contains=keychar)
             ).order_by('-lcdate')
         return new_context
 
@@ -312,40 +241,6 @@ class ScheduleSearchView(LoginRequiredMixin, ListView):
 
         keychar = self.request.GET.get('name', '')
         context['keychar'] = keychar
-        return context
-
-
-class MyScheduleListView(LoginRequiredMixin, ListView):
-    template_name = 'projects/schedule_my_list.html'
-    model = Schedule
-    context_object_name = 'schedule_list'
-    # ordering = ['-lcdate']
-
-    page_type = ''
-    paginate_by = 30
-    page_kwarg = 'page'
-
-    @property
-    def page_number(self):
-        page_kwarg = self.page_kwarg
-        page = self.kwargs.get(
-            page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        return page
-
-    def get_queryset(self):
-        user = self.request.user
-
-        new_context = Schedule.objects.filter(
-            department=user.department, transactor=user.realname).order_by('-lcdate')
-        return new_context
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        sexpireds = {}
-        for schedule in context['schedule_list']:
-            sexpireds[schedule.id] = schedule.is_expired()
-        context['sexpireds'] = sexpireds
         return context
 
 
@@ -372,16 +267,9 @@ class ScheduleListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         new_context = None
-        if self.request.method == 'POST':
-            name = self.request.POST.get('name', '')
-            new_context = Schedule.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=name) |
-                Q(transactor__contains=name)
-            ).order_by('-lcdate')
-        else:
-            new_context = Schedule.objects.filter(
-                department=user.department).order_by('-lcdate')
+
+        new_context = Schedule.objects.filter(
+            department=user.department).order_by('-lcdate')
         return new_context
 
     def get_context_data(self, **kwargs):
@@ -392,6 +280,16 @@ class ScheduleListView(LoginRequiredMixin, ListView):
             sexpireds[schedule.id] = schedule.is_expired()
         context['sexpireds'] = sexpireds
         return context
+
+
+class MyScheduleListView(ScheduleListView):
+    template_name = 'projects/schedule_my_list.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        new_context = Schedule.objects.filter(
+            department=user.department, transactor=user).order_by('-lcdate')
+        return new_context
 
 
 class ScheduleCreateView(LoginRequiredMixin, CreateView):
@@ -413,7 +311,7 @@ class ScheduleCreateView(LoginRequiredMixin, CreateView):
             user = self.request.user
             kwargs.update(
                 # 给表单的phase字段传递外键实例
-                {'initial': {'project': project, 'transactor': user.realname}}
+                {'initial': {'project': project, 'transactor': user}}
             )
         return kwargs
 
@@ -481,12 +379,12 @@ def export_schedules(request):
         schedule_list = Schedule.objects.filter(
             Q(department=user.department),
             Q(name__contains=keychar) |
-            Q(transactor__contains=keychar)
+            Q(transactor__realname__contains=keychar)
         ).order_by('-lcdate')
     writer.writerow(['task', 'project', 'type', 'author', 'date'])
     for schedule in schedule_list:
         writer.writerow([schedule.name, schedule.project.name,
-                        schedule.task_type, schedule.transactor, str(schedule.lcdate)])
+                        schedule.task_type, schedule.transactor.realname, str(schedule.lcdate)])
     return response
 
 
@@ -530,6 +428,6 @@ def export_projects(request):
         schedule_list = project.schedules.all().order_by('-lcdate')
         for schedule in schedule_list:
             writer.writerow([project.name, schedule.name,
-                             schedule.transactor, str(schedule.deadline), '完成' if schedule.isfin else '未完成'])
+                             schedule.transactor.realname, str(schedule.deadline), '完成' if schedule.isfin else '未完成'])
 
     return response
