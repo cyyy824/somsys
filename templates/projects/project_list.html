@@ -44,6 +44,7 @@
                 <th scope="col">进度</th>
                 <th scope="col">经办人</th>
                 <th scope="col">金额</th>
+                <th scope="col">未付</th>
                 <th scope="col">近期活动时间</th>
                 <th scope="col">父项目</th>
                 <th scope="col">超 期</th>
@@ -60,6 +61,7 @@
                     <progress max="100" value="{{ progresses|get_item:project.id }}"></progress></td>
                 <td>{{ project.transactor }}</td>
                 <td>{{ project.amount|div:10000 }}万</td>
+                <td>{{ unpaids|get_item:project.id|div:10000 }}万</td>
                 <td>{{ project.lcdate|date:"Y-m-d" }}</td>
                 <td>
                     {% if project.parent_project %}

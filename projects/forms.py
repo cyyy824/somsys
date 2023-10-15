@@ -15,20 +15,6 @@ class ProjectForm(ModelForm):
         self.fields["parent_project"].queryset = Project.objects.filter(
             department=self.user.department)
 
-        # self.fields['name'].widget.attrs.update({"class": "form-control"})
-        # self.fields['businessentity'].widget.attrs.update(
-        #     {"class": "form-control"})
-        # self.fields['task_state'].widget.attrs.update(
-        #     {"class": "form-control"})
-        # self.fields['content'].widget.attrs.update({"class": "form-control"})
-        # self.fields['amount'].widget.attrs.update({"class": "form-control"})
-        # self.fields['transactor'].widget.attrs.update(
-        #     {"class": "form-control"})
-        # self.fields['parent_project'].widget.attrs.update(
-        #     {"class": "form-control"})
-
-        # self.fields['remark'].widget.attrs.update({"class": "form-control"})
-
     class Meta:
         model = Project
         fields = ['name', 'businessentity', 'task_state', 'content', 'amount',
@@ -53,6 +39,7 @@ class DateInput(forms.DateInput):
 
 class ScheduleForm(ModelForm):
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
         super(ScheduleForm, self).__init__(*args, **kwargs)
 
         # for filed in self.fields.values():
@@ -69,6 +56,9 @@ class ScheduleForm(ModelForm):
             {"class": "form-control"})
         self.fields['content'].widget.attrs.update({"class": "form-control"})
         self.fields['remark'].widget.attrs.update({"class": "form-control"})
+
+        self.fields["project"].queryset = Project.objects.filter(
+            department=self.user.department)
 
     class Meta:
         model = Schedule

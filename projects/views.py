@@ -26,6 +26,17 @@ class ProjectSearchView(LoginRequiredMixin, ListView):
     model = Project
     context_object_name = 'project_list'
 
+    page_type = ''
+    paginate_by = 20
+    page_kwarg = 'page'
+
+    @property
+    def page_number(self):
+        page_kwarg = self.page_kwarg
+        page = self.kwargs.get(
+            page_kwarg) or self.request.GET.get(page_kwarg) or 1
+        return page
+
     def get_queryset(self):
         user = self.request.user
         keychar = self.request.GET.get('name', '')
@@ -104,20 +115,16 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
         progresses = {}
         isexpireds = {}
+        unpaids = {}
         # isexpired = False
         for project in context['project_list']:
-            aa = project.schedules.filter(
-                isfin=True).aggregate(Sum('progress'))
-            progresses[project.id] = aa['progress__sum'] or 0
-            isexpired = False
-            for schedule in project.schedules.all():
-                if schedule.is_expired():
-                    isexpired = True
-                    break
-            isexpireds[project.id] = isexpired
+            progresses[project.id] = project.progress()
+            isexpireds[project.id] = project.isexpired()
+            unpaids[project.id] = project.unpaid()
 
         context['progresses'] = progresses
         context['isexpireds'] = isexpireds
+        context['unpaids'] = unpaids
 
         context['state'] = self.kwargs.get('state', 'all')
         context['ismain'] = self.kwargs.get('main', '0')
@@ -211,37 +218,13 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(ProjectUpdateView, self).get_form_kwargs()
         user = self.request.user
-        kwargs.update({'user': user})
+
+        kwargs.update({'user': user})  # 向ModelForm传递user
+
         kwargs.update(
             {'initial': {'lcuser': user}}
         )
         return kwargs
-
-
-class ScheduleSearchView(LoginRequiredMixin, ListView):
-    template_name = 'projects/schedule_search.html'
-    model = Schedule
-    context_object_name = 'schedule_list'
-    # ordering = ['-lcdate']
-
-    def get_queryset(self):
-        user = self.request.user
-
-        keychar = self.request.GET.get('name', '')
-        if keychar != None:
-            new_context = Schedule.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=keychar) |
-                Q(transactor__realname__contains=keychar)
-            ).order_by('-lcdate')
-        return new_context
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        keychar = self.request.GET.get('name', '')
-        context['keychar'] = keychar
-        return context
 
 
 class ScheduleListView(LoginRequiredMixin, ListView):
@@ -261,8 +244,8 @@ class ScheduleListView(LoginRequiredMixin, ListView):
             page_kwarg) or self.request.GET.get(page_kwarg) or 1
         return page
 
-    def post(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+#    def post(self, request, *args, **kwargs):
+#        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -279,6 +262,28 @@ class ScheduleListView(LoginRequiredMixin, ListView):
         for schedule in context['schedule_list']:
             sexpireds[schedule.id] = schedule.is_expired()
         context['sexpireds'] = sexpireds
+        return context
+
+
+class ScheduleSearchView(ScheduleListView):
+    template_name = 'projects/schedule_search.html'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        keychar = self.request.GET.get('name', '')
+        if keychar != None:
+            new_context = Schedule.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__realname__contains=keychar)
+            ).order_by('-lcdate')
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        keychar = self.request.GET.get('name', '')
+        context['keychar'] = keychar
         return context
 
 
@@ -309,6 +314,7 @@ class ScheduleCreateView(LoginRequiredMixin, CreateView):
             project = Project.objects.get(id=project_id)
             # 进入网页，该字段值：{'initial': {}, 'prefix': None, 'instance': None}
             user = self.request.user
+            kwargs.update({'user': user})
             kwargs.update(
                 # 给表单的phase字段传递外键实例
                 {'initial': {'project': project, 'transactor': user}}
@@ -351,7 +357,7 @@ class ScheduleUpdateView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(ScheduleUpdateView, self).get_form_kwargs()
         user = self.request.user
-
+        kwargs.update({'user': user})
         kwargs.update(
             {'initial': {'lcuser': user}}
         )

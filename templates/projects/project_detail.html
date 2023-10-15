@@ -63,8 +63,8 @@
                     <td>{{ cproject.lcdate| date:"Y-m-d" }}</td>
                     <td>{{ cproject.transactor }}</td>
                     <td>{{ cproject.task_state }}</td>
-                    <td>{{ cproject.amount }}</td>
-                    <td><progress class="progress-bar bg-success" max="100" value="{{ cprogresses|get_item:cproject.id }}"
+                    <td>{{ cproject.amount|div:10000 }}万</td>
+                    <td><progress  max="100" value="{{ cprogresses|get_item:cproject.id }}"
                             titile="{{ cprogresses|get_item:cproject.id }}%"></progress></td>
                     <td><a href="{% url 'project_update' cproject.id%}">修改</a></td>
                 </tr>
@@ -99,7 +99,7 @@
                     <td>{{ pay.name }}</td>
                     <td>{{ pay.paydate|date:"Y-m-d" }}</td>
                     <td>{{ pay.transactor }}</td>
-                    <td>{{ pay.amount }}</td>
+                    <td>{{ pay.amount|div:10000 }}万</td>
                     <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
                 </tr>
                 {% empty %}

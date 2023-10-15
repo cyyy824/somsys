@@ -22,7 +22,8 @@ urlpatterns = [
     path('cost/', include('cost.urls')),
     path('projects/', include('projects.urls')),
     path('accounts/', include('accounts.urls')),
-    #   path('tasks/', include('tasks.urls')),
+    path('kanban/', include('kanban.urls')),
     path('', include('projects.urls')),
-    path('^comments/', include('django_comments.urls')),
+    path('comments/', include('django_comments.urls')),
+
 ]

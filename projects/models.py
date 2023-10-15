@@ -5,6 +5,9 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from cost.models import Pay
+from django.db.models import Sum
+
 # Create your models here.
 
 User = get_user_model()
@@ -58,6 +61,22 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    def unpaid(self):
+        allamount = self.pays.all().aggregate(Sum('amount'))
+        return self.amount - (allamount['amount__sum'] or 0)
+
+    def isexpired(self):
+        isexpired = False
+        for schedule in self.schedules.all():
+            if schedule.is_expired():
+                isexpired = True
+                break
+        return isexpired
+
+    def progress(self):
+        progress = self.schedules.filter(isfin=True).aggregate(Sum('progress'))
+        return progress['progress__sum'] or 0
+
 
 class Schedule(models.Model):
 
@@ -79,7 +98,7 @@ class Schedule(models.Model):
     task_type = models.CharField(
         max_length=20, choices=TASK_TYPE_CHOICES, null=True, verbose_name='类型')
 
-    #transactor = models.CharField(max_length=32, verbose_name='经办人')
+    # transactor = models.CharField(max_length=32, verbose_name='经办人')
     transactor = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='transactor_schedules', blank=True, null=True, verbose_name='经办人')
     content = models.TextField(blank=True, verbose_name='内容')
@@ -114,9 +133,23 @@ class Schedule(models.Model):
         return self.name
 
 
-@receiver(post_save, sender=Schedule)
-def change_schedule(sender, instance, created, **kwargs):
-    if instance:
-        project = instance.project
-        project.lcdate = timezone.now
-        project.save()
+# @receiver(post_save, sender=Schedule)
+# def change_schedule(sender, instance, created, **kwargs):
+#     if instance:
+#         project = instance.project
+#         project.lcdate = timezone.now
+#         project.save()
+
+
+# @receiver(post_save, sender=Project)
+# def change_project(sender, instance, created, **kwargs):
+#     if instance:
+#         project = instance.parent_project
+#         lv = 1
+#         while project:
+#             project.lcdate = timezone.now
+#             project.save()
+#             project = project.parent_project
+#             lv = lv+1
+#             if lv > 4:
+#                 break

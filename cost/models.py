@@ -11,6 +11,9 @@ class BudgetYear(models.Model):
     def __str__(self):
         return str(self.year)
 
+    def __repr__(self):
+        return str(self.year)
+
 
 class Budget(models.Model):
 
@@ -39,7 +42,10 @@ class Budget(models.Model):
         "accounts.Structure", on_delete=models.CASCADE, related_name='budgets', verbose_name="部门")
 
     def __str__(self):
-        return self.name
+        return repr(self.year)+'-'+self.businessentity+'-'+self.name
+
+    def __repr__(self):
+        return repr(self.year)+'-'+self.businessentity+'-'+self.name
 
 
 class Pay(models.Model):
@@ -53,7 +59,7 @@ class Pay(models.Model):
     businessentity = models.CharField(
         max_length=6, choices=BUSINESSENTITY_CHOICES)
     paydate = models.DateTimeField(default=timezone.now)
-    #transactor = models.CharField(max_length=32)
+    # transactor = models.CharField(max_length=32)
     transactor = models.ForeignKey(
         'accounts.OAUser', on_delete=models.CASCADE, related_name='transactor_pays', blank=True, null=True, verbose_name='经办人')
 
@@ -77,6 +83,8 @@ class Pay(models.Model):
         return self.name
 
 # pay change or add, update project change time
+
+
 @receiver(post_save, sender=Pay)
 def change_schedule(sender, instance, created, **kwargs):
     if instance:

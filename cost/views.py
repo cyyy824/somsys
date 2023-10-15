@@ -1,3 +1,4 @@
+import logging
 from audioop import reverse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -19,7 +20,7 @@ import csv
 
 # Create your views here.
 
-# select budget for year
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -98,6 +99,8 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
         budget.lcuser = user
         budget.department = user.department
         budget.save(True)
+
+        logger.info('add budget-'+budget)
         return HttpResponseRedirect(self.success_url)
 
 
