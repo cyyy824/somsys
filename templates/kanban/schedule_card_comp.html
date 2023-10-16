@@ -1,0 +1,49 @@
+{% load static %}
+
+<div class="card">
+    <div class="card-body">
+      <div class="d-flex align-items-center">
+
+        <div class="h1">
+          任务
+        </div>
+      </div>
+      <div class="h2 mb-3">所有：{{ schedulenum }}</div>
+      <div class="h3 mb-3">完成：{{ schedulefin }}</div>
+      <div class="h3 mb-3">未完成：{{ scheduleufin }}</div>
+      
+    </div>
+    <div id="chart1" class="chart-sm mt-3" style="width:400px;min-height: 80px;"></div>
+  </div>
+
+  <script src="{% static 'plugins/echarts/echarts.min.js' %}"></script>
+  <script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('chart1'));
+  $.ajax({
+    type: "get",
+    async: true,
+    url:  '{% url 'load_tasks_dayfin' %}?day=7',
+    dataType: "json",
+    success: function(data){
+      if(data){
+        option = {
+          xAxis: {
+            type: 'category',
+            data: []
+          },
+          yAxis: {
+            type: 'value',
+            minInterval: 3
+          },
+          series: [
+          {
+            data: data.series,
+            type: 'line'
+          }
+          ]
+        }
+        myChart.setOption(option);
+      }
+    }
+  })
+  </script>

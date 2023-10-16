@@ -1,0 +1,15 @@
+{% load getitem_tag %}
+
+<div class="card">
+    <div class="card-body">
+      <div class="d-flex align-items-center">
+
+        <div class="h1">
+          费用
+        </div>
+      </div>
+      <div class="h2 mb-3">数量：{{ paynum }}</div>
+      <div class="h3 mb-3"></div>
+      <div class="h3 mb-3">总额：{{ pay_value|div:10000 }}万</div>
+    </div>
+</div>

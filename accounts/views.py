@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect
 
 # Create your views here.
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class OAUserLoginView(LoginView):
@@ -42,7 +42,7 @@ class OARegisterView(FormView):
             user = form.save(False)
             # user.is_active = False
             user.save(True)
-            logger.info('register-'+user.realname)
+            # logger.info('register-'+user.realname)
             return HttpResponseRedirect(reverse_lazy('project_list'))
         else:
             return self.render_to_response({

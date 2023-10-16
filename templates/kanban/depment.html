@@ -19,52 +19,29 @@
         <!-- Page title actions -->
     <div class="row row-deck row-cards">
             <div class="col-sm-3 col-lg-4">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-
-                      <div class="h1">
-                        项目
-                      </div>
-                    </div>
-                    <div class="h2 mb-3">所有：{{ projectnum }}</div>
-                    <div class="h3 mb-3">完成：{{ projectfin }}</div>
-                    <div class="h3 mb-3">未完成：{{ projectufin }}</div>
-                  </div>
-                </div>
+              {% include "kanban/project_card_comp.html" %}
             </div>
 
             <div class="col-sm-3 col-lg-4">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-                      <div class="h1">
-                        任务
-                      </div>
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+            
+                    <div class="h1">
+                      任务
                     </div>
-                    <div class="h3 mb-3">未完成：{{ scheduleufin }}</div>      
-                    <div class="d-flex align-items-center my-2">
-                    <div class="subhead">近期完成</div>
-                    <div class="ms-auto lh-1">前7天</div>
                   </div>
-                  <div id="chart1" class="chart-sm mt-3" style="min-height: 80px;"></div>
+                  <div class="h2 mb-3">所有：{{ schedulenum }}</div>
+                  <div class="h3 mb-3">完成：{{ schedulefin }}</div>
+                  <div class="h3 mb-3">未完成：{{ scheduleufin }}</div>
+                  
                 </div>
+                <div id="chart1" class="chart-sm mt-3" style="min-height: 80px;"></div>
               </div>
             </div>
 
             <div class="col-sm-3 col-lg-4">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-
-                      <div class="h1">
-                        年费用
-                      </div>
-                    </div>
-                    <div class="h2 mb-3">数量：{{ paynum }}</div>
-                    <div class="h3 mb-3">总额：{{ pay_value|div:10000 }}万</div>
-                  </div>
-                </div>
+              {% include "kanban/pays_card_comp.html" %}
             </div>
     
 
@@ -82,7 +59,7 @@ var myChart = echarts.init(document.getElementById('chart1'));
 $.ajax({
   type: "get",
   async: true,
-  url:  '{% url 'load_tasks_dayfin' %}?day=7',
+  url:  '{% url 'load_tasks_dayfin_dep' %}?day=7',
   dataType: "json",
   success: function(data){
     if(data){

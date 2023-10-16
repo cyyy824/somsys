@@ -133,23 +133,23 @@ class Schedule(models.Model):
         return self.name
 
 
-# @receiver(post_save, sender=Schedule)
-# def change_schedule(sender, instance, created, **kwargs):
-#     if instance:
-#         project = instance.project
-#         project.lcdate = timezone.now
-#         project.save()
+@receiver(post_save, sender=Schedule)
+def change_schedule(sender, instance, created, **kwargs):
+    if instance:
+        project = instance.project
+        project.lcdate = timezone.now
+        project.save()
 
 
-# @receiver(post_save, sender=Project)
-# def change_project(sender, instance, created, **kwargs):
-#     if instance:
-#         project = instance.parent_project
-#         lv = 1
-#         while project:
-#             project.lcdate = timezone.now
-#             project.save()
-#             project = project.parent_project
-#             lv = lv+1
-#             if lv > 4:
-#                 break
+@receiver(post_save, sender=Project)
+def change_project(sender, instance, created, **kwargs):
+    if instance:
+        project = instance.parent_project
+        lv = 1
+        while project:
+            project.lcdate = timezone.now
+            project.save()
+            project = project.parent_project
+            lv = lv+1
+            if lv > 4:
+                break

@@ -10,36 +10,7 @@
     <a class="btn btn-primary  m-1" href="{% url 'export_pays' %}" role="button">导出</a>
 </div>
 <div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">支付项</th>
-                <th scope="col">主体</th>
-                <th scope="col">支付日期</th>
-                <th scope="col">经办人</th>
-                <th scope="col">金额</th>
-                <th scope="col">预算</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pay in pay_list %}
-            <tr>
-                <td>{{ pay.name }}</td>
-                <td>{{ pay.businessentity }}</td>
-                <td>{{ pay.paydate|date:"Y-m-d" }}</td>
-                <td>{{ pay.transactor }}</td>
-                <td>{{ pay.amount|div:10000 }}万</td>
-                <td>
-                    {% if pay.budget %}
-                    {{ pay.budget }}
-                    {% endif %}
-                </td>
-                <td><a href="{% url 'pay_update' pay.id%}">编辑</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% include "cost/pays_comp.html" %}
 </div>
 {% if is_paginated %}
 {% include "common/paginated.html"  %}

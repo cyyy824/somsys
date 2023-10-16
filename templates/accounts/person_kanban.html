@@ -9,7 +9,7 @@
       <div class="row align-items-center">
         <div class="row">
           <h2 class="page-title">
-            个人看板——{{ touser.realname }}
+            个人看板
           </h2>
         </div>
       </div>
@@ -19,15 +19,52 @@
         <!-- Page title actions -->
     <div class="row row-deck row-cards">
             <div class="col-sm-3 col-lg-4">
-              {% include "kanban/project_card_comp.html" %}
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+
+                      <div class="h1">
+                        项目
+                      </div>
+                    </div>
+                    <div class="h2 mb-3">所有：{{ projectnum }}</div>
+                    <div class="h3 mb-3">完成：{{ projectfin }}</div>
+                    <div class="h3 mb-3">未完成：{{ projectufin }}</div>
+                  </div>
+                </div>
             </div>
 
             <div class="col-sm-3 col-lg-4">
-              {% include "kanban/schedule_card_comp.html" %}
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <div class="h1">
+                        任务
+                      </div>
+                    </div>
+                    <div class="h3 mb-3">未完成：{{ scheduleufin }}</div>      
+                    <div class="d-flex align-items-center my-2">
+                    <div class="subhead">近期完成</div>
+                    <div class="ms-auto lh-1">前7天</div>
+                  </div>
+                  <div id="chart1" class="chart-sm mt-3" style="min-height: 80px;"></div>
+                </div>
+              </div>
             </div>
 
             <div class="col-sm-3 col-lg-4">
-              {% include "kanban/pays_card_comp.html" %}
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+
+                      <div class="h1">
+                        年费用
+                      </div>
+                    </div>
+                    <div class="h2 mb-3">数量：{{ paynum }}</div>
+                    <div class="h3 mb-3">总额：{{ pay_value }}</div>
+                  </div>
+                </div>
             </div>
     
 
@@ -35,7 +72,7 @@
         <div class="card">
             <div class="card-header">
               <h3 class="card-title">项目</h3>
-              <div class="col-md-2 ml-auto"><a href="{% url 'project_list' %}">更多</a></div>
+              <div class="col-md-2 ml-auto"><a href="{% url 'myproject_list' %}">更多</a></div>
             </div>
             <div class="table-responsive">
               <table class="table table-sm card-table table-vcenter">
@@ -65,7 +102,7 @@
         <div class="card">
             <div class="card-header">
               <h3 class="card-title">费用</h3>
-              <div class="col-md-2 ml-auto"><a href="{% url 'pay_list' %}">更多</a></div>
+              <div class="col-md-2 ml-auto"><a href="{% url 'mypay_list' %}">更多</a></div>
             </div>
             <div class="table-responsive">
               <table class="table card-table table-vcenter">
@@ -98,7 +135,7 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">任务</h3>
-            <div class="col-md-2 ml-auto"><a href="{% url 'schedule_list' %}">更多</a></div>
+            <div class="col-md-2 ml-auto"><a href="{% url 'myschedule_list' %}">更多</a></div>
           </div>
           <div class="table-responsive">
             <table class="table card-table table-vcenter">
@@ -136,3 +173,38 @@
 
 {% endblock %}
 
+{% block addjs %}
+<script src="{% static 'plugins/echarts/echarts.min.js' %}"></script>
+<script type="text/javascript">
+var myChart = echarts.init(document.getElementById('chart1'));
+$.ajax({
+  type: "get",
+  async: true,
+  url:  '{% url 'load_tasks_dayfin' %}?day=7',
+  dataType: "json",
+  success: function(data){
+    if(data){
+      option = {
+        xAxis: {
+          type: 'category',
+          data: []
+        },
+        yAxis: {
+          type: 'value',
+          minInterval: 3
+        },
+        series: [
+        {
+          data: data.series,
+          type: 'line'
+        }
+        ]
+      }
+      myChart.setOption(option);
+    }
+  }
+})
+
+
+</script>
+{% endblock %}

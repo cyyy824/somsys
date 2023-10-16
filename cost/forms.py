@@ -71,8 +71,6 @@ class PayForm(ModelForm):
             except (ValueError, TypeError):
                 pass
 
-        #self.initial['project'] = project.id
-
         budgetid = self.initial.get('budget')
 
         if budgetid is not None:
@@ -81,9 +79,6 @@ class PayForm(ModelForm):
             self.initial['budgetyear'] = budget.year
             self.fields['budget'].queryset = Budget.objects.filter(
                 year=budget.year)
-
-        # elif self.instance.pk:
-        #    self.fields['budget'].queryset = self.instance.country.city_set.order_by('name')
 
     class Meta:
         model = Pay

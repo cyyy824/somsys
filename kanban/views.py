@@ -64,9 +64,7 @@ class PersonKanbanView(LoginRequiredMixin, TemplateView):
 
         cprogresses = {}
         for cproject in projects:
-            aa = cproject.schedules.filter(
-                isfin=True).aggregate(Sum('progress'))
-            cprogresses[cproject.id] = aa['progress__sum'] or 0
+            cprogresses[cproject.id] = cproject.progress()
         context['cprogresses'] = cprogresses
 
         sexpireds = {}

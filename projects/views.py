@@ -21,43 +21,7 @@ import csv
 # Create your views here.
 
 
-class ProjectSearchView(LoginRequiredMixin, ListView):
-    template_name = 'projects/project_search.html'
-    model = Project
-    context_object_name = 'project_list'
 
-    page_type = ''
-    paginate_by = 20
-    page_kwarg = 'page'
-
-    @property
-    def page_number(self):
-        page_kwarg = self.page_kwarg
-        page = self.kwargs.get(
-            page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        return page
-
-    def get_queryset(self):
-        user = self.request.user
-        keychar = self.request.GET.get('name', '')
-        if keychar != None:
-            new_context = Project.objects.filter(
-                Q(department=user.department),
-                Q(name__contains=keychar) |
-                Q(transactor__realname__contains=keychar)
-            ).order_by('-lcdate')
-        return new_context
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        progresses = {}
-        for project in context['project_list']:
-            aa = project.schedules.filter(
-                isfin=True).aggregate(Sum('progress'))
-            progresses[project.id] = aa['progress__sum'] or 0
-        context['progresses'] = progresses
-        return context
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -95,17 +59,13 @@ class ProjectListView(LoginRequiredMixin, ListView):
         except:
             pass
 
-        new_context = None
+        new_context = Project.objects.filter(department=user.department)
 
         if state == 'fin':
-            new_context = Project.objects.filter(
-                Q(task_state=u'完结'), Q(department=user.department)).order_by('-lcdate')
+            new_context = new_context.filter(task_state=u'完结').order_by('-lcdate')
         elif state == 'unfin':
-            new_context = Project.objects.filter(
-                ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-lcdate')
-        else:
-            new_context = Project.objects.filter(
-                department=user.department).order_by('-lcdate')
+            new_context = new_context.exclude(task_state=u'完结').order_by('-lcdate')
+        
         if ismain > 0:
             new_context = new_context.filter(parent_project__isnull=True)
         return new_context
@@ -131,13 +91,26 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
         return context
 
+class ProjectSearchView(ProjectListView):
+    template_name = 'projects/project_search.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        keychar = self.request.GET.get('name', '')
+        if keychar != None:
+            new_context = Project.objects.filter(
+                Q(department=user.department),
+                Q(name__contains=keychar) |
+                Q(transactor__realname__contains=keychar)
+            ).order_by('-lcdate')
+        return new_context
+
 
 class MyProjectListView(LoginRequiredMixin, ListView):
     template_name = 'projects/project_my_list.html'
 
     def get_queryset(self):
         user = self.request.user
-        new_context = None
         new_context = Project.objects.filter(
             transactor=user, department=user.department).order_by('-lcdate')
         return new_context
@@ -186,16 +159,12 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = context['project']
-        aa1 = project.schedules.filter(
-            isfin=True).aggregate(Sum('progress'))
-        progress = aa1['progress__sum'] or 0
-        context['progress'] = progress
+
+        context['progress'] = project.progress()
 
         cprogresses = {}
         for cproject in project.child_projects.all():
-            aa = cproject.schedules.filter(
-                isfin=True).aggregate(Sum('progress'))
-            cprogresses[cproject.id] = aa['progress__sum'] or 0
+            cprogresses[cproject.id] = cproject.progress()
         context['cprogresses'] = cprogresses
 
         sexpireds = {}
@@ -243,9 +212,6 @@ class ScheduleListView(LoginRequiredMixin, ListView):
         page = self.kwargs.get(
             page_kwarg) or self.request.GET.get(page_kwarg) or 1
         return page
-
-#    def post(self, request, *args, **kwargs):
-#        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -377,16 +343,15 @@ def export_schedules(request):
     writer = csv.writer(response)
     user = request.user
     keychar = request.GET.get('name', '')
-    schedule_list = []
-    if (keychar == ''):
-        schedule_list = Schedule.objects.filter(
+    schedule_list = Schedule.objects.filter(
             department=user.department).order_by('-lcdate')
+        
+    if (keychar != ''):
+        schedule_list = schedule_list.filter()
     else:
-        schedule_list = Schedule.objects.filter(
-            Q(department=user.department),
-            Q(name__contains=keychar) |
-            Q(transactor__realname__contains=keychar)
-        ).order_by('-lcdate')
+        schedule_list = Schedule.objects.filter(Q(name__contains=keychar) |
+            Q(transactor__realname__contains=keychar)).order_by('-lcdate')
+    
     writer.writerow(['task', 'project', 'type', 'author', 'date'])
     for schedule in schedule_list:
         writer.writerow([schedule.name, schedule.project.name,
@@ -407,17 +372,12 @@ def export_projects(request):
     except:
         pass
 
-    new_context = None
-
-    if state == 'fin':
-        new_context = Project.objects.filter(
-            Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
-    elif state == 'unfin':
-        new_context = Project.objects.filter(
-            ~Q(task_state=u'完结'), Q(department=user.department)).order_by('-cdate')
-    else:
-        new_context = Project.objects.filter(
+    new_context = Project.objects.filter(
             department=user.department).order_by('-cdate')
+    if state == 'fin':
+        new_context = new_context.filter(task_state=u'完结').order_by('-cdate')
+    elif state == 'unfin':
+        new_context = new_context.exclude(task_state=u'完结').order_by('-cdate')
     if ismain > 0:
         new_context = new_context.filter(parent_project__isnull=True)
 
@@ -432,6 +392,9 @@ def export_projects(request):
 
     for project in new_context:
         schedule_list = project.schedules.all().order_by('-lcdate')
+        if len(schedule_list)<=0:
+            writer.writerow([project.name, '',project.transactor.realname, '', ''])
+
         for schedule in schedule_list:
             writer.writerow([project.name, schedule.name,
                              schedule.transactor.realname, str(schedule.deadline), '完成' if schedule.isfin else '未完成'])

@@ -16,7 +16,7 @@ import csv
 
 @login_required
 def load_projects(request):
-
+    # 返回项目列表
     kw = request.GET.get('q', '')
     data = {}
     if kw != '':
@@ -29,7 +29,7 @@ def load_projects(request):
 
 
 def get_tasks_day(uid: int, num: int) -> list:
-
+    # 返回前num天的任务完成数量
     taskday = []
     today = datetime.datetime.now()
     user = OAUser.objects.get(pk=uid)
@@ -51,8 +51,30 @@ def get_tasks_day(uid: int, num: int) -> list:
     return taskday
 
 
+def get_tasks_day_to_dep(uid: int, num: int) -> list:
+    # 返回前num天的任务完成数量
+    taskday = []
+    today = datetime.datetime.now()
+    user = OAUser.objects.get(pk=uid)
+    if not user:
+        return taskday
+
+    finret = Schedule.objects.filter(department=user.department, isfin=True)
+    ret = finret.filter(lcdate__gte=str(today.date())+' 00:00:00')
+    taskday.append(len(ret))
+    for i in range(1, num):
+        cday = (today + datetime.timedelta(days=-i))
+        ret = finret.filter(lcdate__gte=str(cday.date())+' 00:00:00',
+                            lcdate__lte=str(today.date())+' 23:59:59')
+        taskday.append(len(ret))
+        today = cday
+    taskday.reverse()
+    return taskday
+
+
 @login_required
 def load_tasksto_dayfin(request, u_id):
+    # 返回前num天的任务完成数量
     dstr = request.GET.get('day', '1')
     day = 1
     if dstr.isdigit():
@@ -65,18 +87,26 @@ def load_tasksto_dayfin(request, u_id):
 
 
 @login_required
+def load_tasksto_dayfin_to_dep(request, u_id):
+    # 返回前num天的任务完成数量
+    dstr = request.GET.get('day', '1')
+    day = 1
+    if dstr.isdigit():
+        day = int(dstr)
+    else:
+        day = 1
+    data = {}
+    data["series"] = get_tasks_day_to_dep(u_id, day)
+    return HttpResponse(json.dumps(data))
+
+
+@login_required
 def load_tasks_dayfin(request):
     user = request.user
     return load_tasksto_dayfin(request, user.id)
 
-    # dstr = request.GET.get('day', '1')
-    # day = 1
-    # if dstr.isdigit():
-    #     day = int(dstr)
-    # else:
-    #     day = 1
 
-    # data = {}
-    # user = request.user
-    # data["series"] = get_tasks_day(user.id,day)
-    # return HttpResponse(json.dumps(data))
+@login_required
+def load_tasks_dayfin_to_dep(request):
+    user = request.user
+    return load_tasksto_dayfin_to_dep(request, user.id)

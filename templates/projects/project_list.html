@@ -35,53 +35,7 @@
     </table>
 </div>
 <div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">项目名</th>
-                <th scope="col">主体</th>
-                <th scope="col">状态</th>
-                <th scope="col">进度</th>
-                <th scope="col">经办人</th>
-                <th scope="col">金额</th>
-                <th scope="col">未付</th>
-                <th scope="col">近期活动时间</th>
-                <th scope="col">父项目</th>
-                <th scope="col">超 期</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for project in project_list %}
-            <tr>
-                <td><a href="{% url 'project_detail' project.id%}">{{ project.name }}</a></td>
-                <td>{{ project.businessentity }}</td>
-                <td>{{ project.task_state }}</td>
-                <td>
-                    <progress max="100" value="{{ progresses|get_item:project.id }}"></progress></td>
-                <td>{{ project.transactor }}</td>
-                <td>{{ project.amount|div:10000 }}万</td>
-                <td>{{ unpaids|get_item:project.id|div:10000 }}万</td>
-                <td>{{ project.lcdate|date:"Y-m-d" }}</td>
-                <td>
-                    {% if project.parent_project %}
-                    <a href="{% url 'project_detail' project.parent_project.id %}">{{ project.parent_project }}</a>
-                    {% else %}
-                    无
-                    {% endif %}
-                </td>
-                <td>
-                    {% if isexpireds|get_item:project.id %}
-		            <span class="badge bg-danger">超期</span>
-                    {% else %}
-		            <span class="badge bg-success">未超期</span>
-		            {% endif %}
-                </td>
-                <td><a href="{% url 'project_update' project.id%}">编辑</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% include "projects/projects_comp.html" %}
 </div>
 {% if is_paginated %}
 {% include "common/paginated.html"  %}

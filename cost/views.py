@@ -20,7 +20,7 @@ import csv
 
 # Create your views here.
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -47,11 +47,9 @@ class BudgetListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        year = self.kwargs['year']
-        yn = BudgetYear.objects.get(year=year)
-        new_context = Budget.objects.filter(
-            Q(year=yn), Q(department=user.department))
-        return new_context
+        y = self.kwargs['year']
+        yn = BudgetYear.objects.get(year=y)
+        return Budget.objects.filter(year=yn, department=user.department)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,7 +68,6 @@ class BudgetListView(LoginRequiredMixin, ListView):
                 break
 
         context['years'] = years
-
         context['allpay'] = allpay
 
         return context
@@ -100,7 +97,7 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
         budget.department = user.department
         budget.save(True)
 
-        logger.info('add budget-'+budget)
+        # logger.info('add budget-'+budget)
         return HttpResponseRedirect(self.success_url)
 
 
@@ -185,10 +182,8 @@ class MyPayListView(PayListView):
 
     def get_queryset(self):
         user = self.request.user
-        new_context = Pay.objects.filter(
+        return Pay.objects.filter(
             department=user.department, transactor=user).order_by('-paydate')
-        return new_context
-
 
 class PayCreateView(LoginRequiredMixin, CreateView):
     template_name = 'cost/pay_create.html'
@@ -257,16 +252,15 @@ def export_pays(request):
     writer = csv.writer(response)
     user = request.user
     keychar = request.GET.get('name', '')
-    pay_list = []
-    if (keychar == ''):
-        pay_list = Pay.objects.filter(
+
+    pay_list = Pay.objects.filter(
             department=user.department).order_by('-paydate')
-    else:
-        pay_list = Pay.objects.filter(
-            Q(department=user.department),
+    
+    if (keychar != ''):
+        pay_list = pay_list.filter(
             Q(name__contains=keychar) |
             Q(transactor__contains=keychar)
-        ).order_by('-paydate')
+            ).order_by('-paydate')
 
     writer.writerow(['payname', 'businessentity', 'date',
                     'author', 'amount', 'budget', 'project'])
